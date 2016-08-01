@@ -29,7 +29,7 @@
 </head>
 
 <body>
-  <canvas style="position:absolute; left:20; bottom:10;" id="canvas" width="118" height="128"></canvas>
+  <canvas style="position:absolute; left:20; bottom:10;" id="Canvas" width="118" height="128"></canvas>
   <input class="opacity_img" type="image" src="gas.png" id="accelerate" style="position:absolute; outline: none; right:25; bottom:130; border-radius:100%;" ontouchstart="acc_begin();" ontouchend="acc_end()" ontouchcancel="acc_end()" ontouchleave="acc_end()" />
   <input class="opacity_img" type="image" src="break.png" id="break" style="position:absolute; outline: none; right:25; bottom:15; border-radius:100%;" ontouchstart="stop();" />
   <input class="opacity_img" type="image" src="refresh.png" id="refresh" style="position:absolute; outline: none; width:50; height:50; right:5; top:30;" ontouchstart="refresh();" onclick="refresh();" />
@@ -167,14 +167,14 @@
     }
 
     function rotateSteeringWheel(orientation) {
-      var canvas = document.getElementById('canvas');
-      var ctx = canvas.getContext("2d");
+      var Canvas = document.getElementById('Canvas');
+      var ctx = Canvas.getContext("2d");
       <!--ctx.clearRect(0, 0, canvas.width, canvas.height);-->
       <!--drawRotatedImage(ctx, steering_wheel_image, 118/2, 128/2, -orientation * turn_step);-->
       var img = new Image();
       img.src = "sw.png";
       img.onload = function() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, Canvas.width, Canvas.height);
         drawRotatedImage(ctx, img, 118/2, 128/2, -orientation * turn_step);
       };
       angle = Math.round(orientation);
