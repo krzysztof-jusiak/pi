@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <style>
-     .opacity_img{
+     .opacity_img {
       opacity: 0.45;
      }
 
-     .opacity_img:active{
+     .opacity_img:active {
       cursor: pointer;
       opacity: 1.0;
      }
@@ -33,6 +33,7 @@
   <input class="opacity_img" type="image" src="gas.png" id="accelerate" style="position:absolute; outline: none; right:25; bottom:130; border-radius:100%;" ontouchstart="acc_begin();" ontouchend="acc_end()" ontouchcancel="acc_end()" ontouchleave="acc_end()" />
   <input class="opacity_img" type="image" src="break.png" id="break" style="position:absolute; outline: none; right:25; bottom:15; border-radius:100%;" ontouchstart="stop();" />
   <input class="opacity_img" type="image" src="refresh.png" id="refresh" style="position:absolute; outline: none; width:50; height:50; right:5; top:30;" ontouchstart="refresh();" onclick="refresh();" />
+  <input type="image" src="camera.png" id="camera" style="position:absolute; outline: none; width:50; height:50; right:5; top:90;" ontouchend="camera();" onclick="camera();" />
 
   <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:15; top:55;" type="radio" id="gear_2" name="gear" checked="checked" onchange="max_speed = 100;"/><label style="position:absolute; outline: none; left:50; top:57;" for="gear_2">2</label>
   <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:15; top:115;" type="radio" id="gear_1" name="gear" onchange="max_speed = 75;" /><label style="position:absolute; outline: none; left:50; top:117;" for="gear_1">1</label>
@@ -120,6 +121,12 @@
       window.location.reload();
     }
 
+    function camera() {
+      var elem = document.getElementById('camera');
+      elem.style.opacity = elem.style.opacity == 0.45 ? 1.0 : 0.45;
+      request("http://192.168.1.71/camera:" + elem.style.opacity == 0.45 ? "off" : "on", true);
+    }
+
     function update_gear(value) {
       var gears = document.getElementsByName('gear');
       for (var i = 0, length = gears.length; i < length; i++) {
@@ -132,6 +139,7 @@
     }
 
     function init() {
+      document.getElementById('camera').style.opacity = 0.45;
       steering_wheel_image.src ="sw.png";
 
       document.onkeydown = function (event) {

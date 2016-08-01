@@ -61,6 +61,13 @@ class S(BaseHTTPRequestHandler):
           GPIO.output(Motor1B,GPIO.LOW)
           e1.ChangeDutyCycle(int(right))
 
+        elif self.path.startswith("/camera"):
+          status = self.path.split(':')[1]
+          if status == "on":
+            pass
+          else
+            pass
+
 def run(server_class=HTTPServer, handler_class=S, port=80):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
