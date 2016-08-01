@@ -161,7 +161,7 @@
 
       if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', function(event) {
-          rotateSteeringWheel(event.accelerationIncludingGravity.alpha);
+          rotateSteeringWheel(event.acceleration.alpha);
         }, false);
       }
     }
