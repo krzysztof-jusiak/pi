@@ -80,7 +80,6 @@
       document.getElementById("left_engine_speed_bar").style.width = left_speed + "%";
       document.getElementById("right_engine_speed_bar").style.width = right_speed + "%";
 
-
       abort_all();
       if (left_speed != old_left_speed || right_speed != old_left_speed) {
           request("http://192.168.1.71/" + (max_speed < 0 ? "reverse" : "forward") + ":" + left_speed + ":" + right_speed, true);
