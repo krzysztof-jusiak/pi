@@ -29,7 +29,7 @@ qemu: (http://embedonix.com/articles/linux/emulating-raspberry-pi-on-linux/)
     KERNEL=="sda?", SYMLINK+="mmcblk0p%n"
     KERNEL=="sda2", SYMLINK+="root"
 
-run on startup:
+run on startup: (https://www.raspberrypi.org/documentation/linux/usage/rc-local.md)
   /etc/rc.local
     * python /full/path/script.py &
 
