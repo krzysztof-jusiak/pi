@@ -18,6 +18,21 @@ os:
     sudo umount img
     sudo losetup -d /dev/loop0
 
+qemu: (http://embedonix.com/articles/linux/emulating-raspberry-pi-on-linux/)
+  git clone https://github.com/dhruvvyas90/qemu-rpi-kernel.git
+  qemu-system-arm -kernel qemu-rpi-kernel/kernel-qemu-4.4.12-jessie -cpu arm1176 -m 256 -M versatilepb -no-reboot -serial stdio -append "root=/dev/sda2 panic=1 rootfstype=ext4 rw" -hda 2016-05-27-raspbian-jessie.img
+
+  /etc/ld.so.preload -> comment out the line inside
+
+  /etc/udev/rules.d/90-qemu.rules
+    KERNEL=="sda", SYMLINK+="mmcblk0"
+    KERNEL=="sda?", SYMLINK+="mmcblk0p%n"
+    KERNEL=="sda2", SYMLINK+="root"
+
+run on startup:
+  /etc/rc.local
+    * python /full/path/script.py &
+
 wifi:
   mount /dev/mmcblk0 pi && cd pi
   sudo vim /etc/wpa_supplicant/wpa_supplicant.conf
