@@ -31,34 +31,14 @@ bool HelloWorld::init()
 
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
-
+    CCLOG("%f %f", visibleSize.width, visibleSize.height); // 640 x 360
     webView = cocos2d::experimental::ui::WebView::create();
-
     webView->setAnchorPoint(Point(0.f, 0.0f)); // top left
     webView->setContentSize(Size(visibleSize.width, visibleSize.height));
     webView->setPosition(Vec2(0.f, 25.f));
-    //webView->loadURL("http://192.168.1.71:10088/?action=stream");
     webView->loadFile("index.html");
     webView->setScalesPageToFit(true);
-    CCLOG("%f %f", visibleSize.width, visibleSize.height); // 640 x 360
-
-    //node = DrawNode::create();
-    Device::setAccelerometerEnabled(true);
-
-    auto listener = EventListenerAcceleration::create([&](Acceleration* acc, Event* event){
-      //node->clear();
-      //node->drawLine(Vec2(100, 150 + (acc->x / 2. * 250.f)), Vec2(400, 150 - (acc->x / 2. * 250.f)), Color4F(1.0, 1.0, 1.0, 1.0));
-      std::stringstream str;
-      str << "drawLine(50, " << 250 - (acc->x / 2. * 250.f) << ", 100, " << 250 + (acc->x / 2. * 250.f) << ");";
-      log("JS: %s", str.str().c_str());
-      webView->evaluateJS(str.str());
-        } );
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-
     this->addChild(webView, 1);
-    //this->addChild(node, 1000);
-
-
     return true;
 }
 
