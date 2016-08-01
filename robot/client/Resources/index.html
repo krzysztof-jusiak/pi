@@ -1,0 +1,183 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <style>
+     .opacity_img{
+      opacity: 0.45;
+     }
+     .opacity_img:active{
+      cursor:pointer;
+      opacity: 1.0;
+     }
+
+     #progress_bar {
+      position: relative;
+      width: 60%;
+      height: 10px;
+      background-color: black;
+    }
+
+    #speed_bar {
+      position: absolute;
+      width: 10%;
+      height: 100%;
+      background-color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas style="position:absolute;" id="canvas2" width="640" height="350"></canvas>
+  <input class="opacity_img" type="image" src="gas.png" id="Accelerate" style="position:absolute; outline: none; right:25; bottom:130; border-radius:100%;" ontouchstart="acc_begin();" ontouchend="acc_end()" ontouchcancel="acc_end()" ontouchleave="acc_end()" />
+  <input class="opacity_img" type="image" src="break.png" id="Break" style="position:absolute; outline: none; right:25; bottom:15; 50px; border-radius:100%;" ontouchstart="stop();" />
+  <input style="position:absolute; outline: none; width:30%; left:200; bottom:25; 50px; border-radius:100%;" type="range" id="max_speed" min="0" max="100" value="100" step="5" onchange="gear(this.value)" />
+  <div style="position:absolute; left:10; top:10;" id="progress_bar"><div id="speed_bar" style="width:0;"></div></div> 
+
+  <!--debug-->
+  <!--<p style="position:absolute; left:20; top:50; color:blue;" id="debug"></p>-->
+  <!--debug-->
+
+  <iframe src="http://192.168.1.71:10088/?action=stream" width="100%" height="100%"></iframe>
+
+  <script type="text/javascript">
+    var max_speed = 100;
+    var step = 20;
+    var update_interval = 10;
+
+    var TO_RADIANS = Math.PI / 180;
+    var left = 0;
+    var right = 0;
+    var left_speed = 0;
+    var old_left_speed = 0;
+    var right_speed = 0;
+    var old_right_speed = 0;
+    var angle = 0;
+    var inter = 0;
+    var requests = [];
+
+    init();
+    deviceOrientationHandler(0, 0, 0);
+
+    function gear(value) {
+      max_speed = value;
+      document.getElementById("max_speed").innerHTML = max_speed;
+    }
+
+    function update_speed(left, right, a) {
+      var angle = a;
+      if (angle > 0 && angle < 100) { // left
+        left_speed = scale(left, 0, Math.max(0, max_speed - angle));
+      } else {
+        left_speed = scale(left, 0, max_speed);
+      } 
+      
+      if (angle > 200) { // right
+        right_speed = scale(right, 0, Math.max(0, max_speed - (360 - angle)));
+      } else {
+        right_speed = scale(right, 0, max_speed);
+      } 
+      
+      <!--debug-->
+      <!--document.getElementById("debug").innerHTML = left_speed + " | " + right_speed + " | " + angle;-->
+      <!--debug-->
+
+      var elem = document.getElementById("speed_bar");
+      elem.style.width = ((left_speed + right_speed) / 2) + '%';
+
+      abort_all();
+      if (left_speed != old_left_speed || right_speed != old_left_speed) {
+          request("http://192.168.1.71/forward:" + left_speed + ":" + right_speed, true);
+      }
+      old_left_speed = left_speed;
+      old_right_speed  = right_speed;
+    }
+
+    function acc_begin() {
+      inter = setInterval(accelerate, update_interval);
+    }
+
+    function acc_end() {
+      clearInterval(inter);
+      stop();
+    }
+
+    function accelerate() {
+      left += step; right += step;
+      if (left > max_speed) left = max_speed;
+      if (right > max_speed) right = max_speed;
+      update_speed(left, right, angle);
+    }
+
+    function stop() {
+      left = 0
+      right = 0
+      update_speed(left, right, angle);
+    }
+
+    function scale(value, min, max) {
+        var baseMin = 0;
+        var baseMax = max_speed;
+        return Math.round(((max - min) * (value - baseMin) / (baseMax - baseMin)) + min);
+    }
+    
+    function init() {
+      window.oncontextmenu = function(event) {
+           event.preventDefault();
+           event.stopPropagation();
+           return false;
+      };
+
+      if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', function(eventData) {
+          var tiltLR = eventData.gamma;
+          var tiltFB = eventData.beta;
+          var dir = eventData.alpha
+          deviceOrientationHandler(tiltLR, tiltFB, dir);
+        },
+        false
+        );
+      }
+    }
+  
+    function deviceOrientationHandler(tiltLR, tiltFB, dir) {
+      var Canvas2 = document.getElementById('canvas2');
+      var ctx = Canvas2.getContext("2d");
+      var img = new Image();
+      img.src = "sw.png";
+      img.onload = function() {
+          ctx.clearRect(0, 0, Canvas2.width, Canvas2.height);
+          drawRotatedImage(ctx, img, 80, 290, -dir);
+      };
+
+      angle = Math.round(dir);
+    }
+    
+    function drawRotatedImage(context, image, x, y, angle) {
+      context.save();
+      context.translate(x, y);
+      context.rotate(angle * TO_RADIANS);
+      context.drawImage(image, -(image.width/2), -(image.height/2));
+      context.restore();
+    }
+
+    function request(url, async) {
+        var xmlHttp = new XMLHttpRequest();
+        requests.push(xmlHttp);
+        xmlHttp.open("GET", url, async);
+        xmlHttp.send(null);
+    } 
+
+    function abort_all() {
+      for (i = 0; i < requests.length; ++i) {
+        requests[i].abort();
+      }
+      requests = [];
+    }
+    </script>
+</body>
+</html>
