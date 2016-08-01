@@ -37,13 +37,13 @@ class S(BaseHTTPRequestHandler):
           print "forward: " + left + ":" + right
 
           #engine left
-          GPIO.output(Motor2A,GPIO.LOW)
-          GPIO.output(Motor2B,GPIO.HIGH)
+          GPIO.output(Motor1A,GPIO.LOW)
+          GPIO.output(Motor1B,GPIO.HIGH)
           e2.ChangeDutyCycle(int(left))
 
           #engine right
-          GPIO.output(Motor1A,GPIO.LOW)
-          GPIO.output(Motor1B,GPIO.HIGH)
+          GPIO.output(Motor2A,GPIO.LOW)
+          GPIO.output(Motor2B,GPIO.HIGH)
           e1.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/reverse"):
@@ -52,20 +52,20 @@ class S(BaseHTTPRequestHandler):
           print "reverse: " + left + ":" + right
 
           #engine left
-          GPIO.output(Motor2A,GPIO.HIGH)
-          GPIO.output(Motor2B,GPIO.LOW)
+          GPIO.output(Motor1A,GPIO.HIGH)
+          GPIO.output(Motor1B,GPIO.LOW)
           e2.ChangeDutyCycle(int(left))
 
           #engine right
-          GPIO.output(Motor1A,GPIO.HIGH)
-          GPIO.output(Motor1B,GPIO.LOW)
+          GPIO.output(Motor2A,GPIO.HIGH)
+          GPIO.output(Motor2B,GPIO.LOW)
           e1.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]
           if status == "on":
             pass
-          else
+          else:
             pass
 
 def run(server_class=HTTPServer, handler_class=S, port=80):

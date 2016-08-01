@@ -54,7 +54,7 @@ camera:
   raspistill -o image.jpg
 
   sudo modprobe bcm2835-v4l2
-  ./mjpg_streamer -i "./input_uvc.so -n -f 30 -r 640x360" -o "./output_http.so -p 10088 -w /usr/local/www"
+  ./mjpg_streamer -i "./input_uvc.so -n -f 15 -r 640x360" -o "./output_http.so -p 10088 -w /usr/local/www"
   http://192.168.1.71:10088/?action=stream
 
 tools:
