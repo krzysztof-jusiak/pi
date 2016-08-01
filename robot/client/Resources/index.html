@@ -126,6 +126,7 @@
       for (var i = 0, length = gears.length; i < length; i++) {
           if (gears[i].checked && gears[i - value]) {
             gears[i - value].checked = true;
+            gears[i - value].onchange();
             break;
           }
       }
