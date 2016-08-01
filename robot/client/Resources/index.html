@@ -80,7 +80,7 @@
       }
 
       if (angle > 200 || angle < 0) { // right
-        var tmp_angle = angle < 0 ? -angle : (angle > 360 ? 720 - angle : 360 - angle);
+        var tmp_angle = angle;//< 0 ? -angle : (angle > 360 ? 720 - angle : 360 - angle);
       document.getElementById("debug").innerHTML = tmp_angle;
         right_speed = scale(right, 0, Math.max(0, Math.abs(max_speed) - tmp_angle));
       } else {
