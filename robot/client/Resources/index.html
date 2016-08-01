@@ -59,6 +59,7 @@
     var angle = 0;
     var inter = 0;
     var requests = [];
+    var steering_wheel_image = new Image();
 
     init();
 
@@ -131,6 +132,8 @@
     }
 
     function init() {
+      steering_wheel_image.src ="sw.png";
+
       document.onkeydown = function (event) {
         event = event || window.event;
         switch (event.key) {
@@ -161,19 +164,13 @@
           rotateSteeringWheel(event.accelerationIncludingGravity.alpha);
         }, true);
       }
-
-      rotateSteeringWheel(0);
     }
 
     function rotateSteeringWheel(orientation) {
       var canvas = document.getElementById('canvas');
       var ctx = canvas.getContext("2d");
-      var img = new Image();
-      img.src = "sw.png";
-      img.onload = function() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawRotatedImage(ctx, img, 118/2, 128/2, -orientation * turn_step);
-      };
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawRotatedImage(ctx, steering_wheel_image, 118/2, 128/2, -orientation * turn_step);
       angle = Math.round(orientation);
     }
 
