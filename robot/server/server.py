@@ -26,7 +26,7 @@ GPIO.setup(Motor2E, GPIO.OUT)
 e2 = GPIO.PWM(Motor2E, 100) # freq, in hertz
 e2.start(0)
 
-class S(BaseHTTPRequestHandler)
+class S(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
 
@@ -64,7 +64,7 @@ class S(BaseHTTPRequestHandler)
           status = self.path.split(':')[1]
           if status == "on":
             call("sudo modprobe bcm2835-v4l2", shell=True)
-            call("mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www'", shell=True)
+            call("sudo mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www'", shell=True)
           else:
             call("sudo pkill -9 mjpg_streamer", shell=True)
             call("sudo rmmod bcm2835-v4l2", shell=True)
