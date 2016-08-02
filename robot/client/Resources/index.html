@@ -68,7 +68,7 @@
     init();
 
     function max_turn() {
-      return Math.abs(max_speed) + 4;
+      return Math.abs(max_speed);
     }
 
     function update_speed(left, right, a) {
@@ -148,7 +148,7 @@
     }
 
     function is_angle_allowed(value) {
-      value *= turn_step;
+      value *= turn_step + 4;
       const tmp = value <= 0 ? value : (value > 360 ? value - 720 : (value > max_turn() ? value - 360 : value));
       return tmp > -max_turn() && tmp < max_turn();
     }
