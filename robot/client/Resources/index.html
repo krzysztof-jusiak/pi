@@ -95,9 +95,9 @@
     }
 
     function acc_begin() {
-      <!--if (!abort) {-->
+      if (!abort) {
         inter = setInterval(accelerate, update_interval);
-      <!--}-->
+      }
     }
 
     function acc_end() {
@@ -237,18 +237,18 @@
     }
 
     function abort_all() {
-      abort = true;
+      <!--abort = true;-->
 
-      for (i = 0; i <= inter; ++i) {
-        clearInterval(i);
-      }
+      <!--for (i = 0; i <= inter; ++i) {-->
+        <!--clearInterval(i);-->
+      <!--}-->
 
       for (i = 0; i < requests.length; ++i) {
         requests[i].abort();
       }
 
       requests = [];
-      abort = false;
+      <!--abort = false;-->
     }
     </script>
 </body>
