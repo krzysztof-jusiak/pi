@@ -45,7 +45,7 @@
 
   <script type="text/javascript">
     const speed_step = 20;
-    const turn_step = 2;
+    const turn_step = 1.5;
     const update_interval = 10;
     const max_turn = 50;
     const url = "http://192.168.1.71";
@@ -213,13 +213,13 @@
     }
 
     function rotate_steering_wheel(orientation) {
-      <!--if (is_angle_allowed(orientation)) {-->
+      if (is_angle_allowed(orientation)) {
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         draw_rotated_image(ctx, steering_wheel_image, steering_wheel_image.width / 2, steering_wheel_image.height / 2, -orientation * turn_step);
         angle = Math.round(orientation);
-      <!--}-->
+      }
     }
 
     function draw_rotated_image(context, image, x, y, angle) {
