@@ -148,7 +148,8 @@
     }
 
     function is_angle_allowed(value) {
-      value *= turn_step + 4;
+      value *= turn_step;
+      if (value < 0) value -=4; else if (value > 0) value +=4;
       const tmp = value <= 0 ? value : (value > 360 ? value - 720 : (value > max_turn() ? value - 360 : value));
       return tmp > -max_turn() && tmp < max_turn();
     }
