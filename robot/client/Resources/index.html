@@ -25,6 +25,40 @@
       height: 100%;
       background-color: red;
     }
+
+    .sidenav {
+        height: 100%; /* 100% Full-height */
+        width: 0; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0;
+        left: 0;
+        background-color: #111; /* Black*/
+        overflow-x: hidden; /* Disable horizontal scroll */
+        padding-top: 60px; /* Place content 60px from the top */
+        transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+    }
+
+    .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s
+    }
+
+    .sidenav a:hover, .offcanvas a:focus{
+        color: #f1f1f1;
+    }
+
+    .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px !important;
+        margin-left: 50px;
+    }
   </style>
 </head>
 
@@ -41,6 +75,13 @@
 
   <div class="progress_bar" style="position:absolute; left:10; top:10;"><div class="speed_bar" id="left_engine_speed_bar" style="width:0;"></div></div>
   <div class="progress_bar" style="position:absolute; right:10; top:10;"><div class="speed_bar" id="right_engine_speed_bar" style="width:0;"></div></div>
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="close_nav()">&times;</a>
+    <a href="javascript:void(0)" onclick="request(url + "/off", true);">Shut Down</a>
+  </div>
+
+  <span onclick="open_nav()">Menu</span>
+
   <iframe id="stream"  width="100%" height="95%" frameBorder="0"></iframe>
 
   <script type="text/javascript">
@@ -64,7 +105,6 @@
     var steering_wheel_image = new Image();
     var once = true;
     var abort = false;
-    var refreshing = false;
 
     init();
 
@@ -130,7 +170,6 @@
     }
 
     function refresh() {
-      refreshing = true;
       window.location.reload();
     }
 
@@ -208,12 +247,6 @@
            return false;
         };
 
-        window.onbeforeunload = function(){
-          if (!refreshing && confirm("Turn off the robot?")) {
-            request(url + "/off", true);
-          }
-        };
-
         if (window.DeviceOrientationEvent) {
           window.addEventListener('deviceorientation', function(event) {
             rotate_steering_wheel(event.alpha);
@@ -263,6 +296,18 @@
 
       requests = [];
       abort = false;
+    }
+
+    function open_nav() {
+        document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+    }
+
+    function close_nav() {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("main").style.marginLeft = "0";
+        document.body.style.backgroundColor = "white";
     }
     </script>
 </body>
