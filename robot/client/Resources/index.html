@@ -144,7 +144,7 @@
     }
 
     function is_angle_allowed(angle) {
-      const tmp = angle < 0 ? angle : (angle > 360 ? 720 - angle : (angle > max_turn ? 360 - angle : angle));
+      const tmp = angle < 0 ? angle : (angle > 360 ? angle - 720 : (angle > max_turn ? angle - 360 : angle));
       document.getElementById('blha').innerHTML = angle + " " + tmp;
       return tmp > -max_turn && tmp < max_turn;
     }
