@@ -47,7 +47,6 @@
     const speed_step = 20;
     const turn_step = 2;
     const update_interval = 10;
-    const max_turn = 50;
     const url = "http://192.168.1.71";
     const stream_port = 10088;
     const TO_RADIANS = Math.PI / 180;
@@ -70,13 +69,14 @@
 
     function update_speed(left, right, a) {
       var angle = a * turn_step;
-      if (angle >= 0 && angle < max_turn) { // left
+
+      if (angle >= 0 && angle < Math.abs(max_speed)) { // left
         left_speed = scale(left, 0, Math.max(0, Math.abs(max_speed) - angle));
       } else {
         left_speed = scale(left, 0, Math.abs(max_speed));
       }
 
-      if (angle < 0 || angle > max_turn) { // right
+      if (angle < 0 || angle > Math.abs(max_speed)) { // right
         const tmp_angle = angle < 0 ? -angle : (angle > 360 ? 720 - angle : 360 - angle);
         right_speed = scale(right, 0, Math.max(0, Math.abs(max_speed) - tmp_angle));
       } else {
@@ -144,8 +144,9 @@
     }
 
     function is_angle_allowed(value) {
-      const tmp = value <= 0 ? value : (value > 360 ? value - 720 : (value > max_turn ? value - 360 : value));
-      return tmp > -max_turn && tmp < max_turn;
+      value *= turn_step;
+      const tmp = value <= 0 ? value : (value > 360 ? value - 720 : (value > Math.abs(max_speed) ? value - 360 : value));
+      return tmp > -Math.abs(max_speed) && tmp < Math.abs(max_speed);
     }
 
     function update_gear(value) {
