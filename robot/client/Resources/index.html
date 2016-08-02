@@ -35,7 +35,7 @@
   <input type="image" src="img/camera.png" id="camera" style="position:absolute; outline: none; width:50; height:50; right:70; top:30;" onclick="camera();" />
   <input class="opacity_img" type="image" src="img/refresh.png" id="refresh" style="position:absolute; outline: none; width:50; height:50; right:10; top:30;" ontouchstart="refresh();" onclick="refresh();" />
 
-  <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:15; top:55;" type="radio" id="gear_2" name="gear" onchange="max_speed = 100;"/><label id="blha" style="position:absolute; outline: none; left:50; top:57;" for="gear_2">2</label>
+  <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:15; top:55;" type="radio" id="gear_2" name="gear" onchange="max_speed = 100;"/><label style="position:absolute; outline: none; left:50; top:57;" for="gear_2">2</label>
   <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:15; top:115;" type="radio" id="gear_1" name="gear" checked="checked" onchange="max_speed = 75;" /><label style="position:absolute; outline: none; left:50; top:117;" for="gear_1">1</label>
   <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:15; top:175;" type="radio" id="gear_R" name="gear" onchange="max_speed = -60;"/><label style="position:absolute; outline: none; left:50; top:177;" for="gear_R">R</label>
 
@@ -95,9 +95,9 @@
     }
 
     function acc_begin() {
-      if (!abort) {
+      <!--if (!abort) {-->
         inter = setInterval(accelerate, update_interval);
-      }
+      <!--}-->
     }
 
     function acc_end() {
@@ -145,7 +145,6 @@
 
     function is_angle_allowed(value) {
       const tmp = value <= 0 ? value : (value > 360 ? value - 720 : (value > max_turn ? value - 360 : value));
-      document.getElementById('blha').innerHTML = value + " " + tmp;
       return tmp > -max_turn && tmp < max_turn;
     }
 
