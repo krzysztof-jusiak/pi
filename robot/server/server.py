@@ -69,6 +69,9 @@ class S(BaseHTTPRequestHandler)
             call("sudo pkill -9 mjpg_streamer", shell=True)
             call("sudo rmmod bcm2835-v4l2", shell=True)
 
+        elif self.path.startswith("/off"):
+          call("sudo halt", shell=True)
+
 def run(server_class=HTTPServer, handler_class=S, port=80):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
