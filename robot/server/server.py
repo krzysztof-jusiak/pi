@@ -63,14 +63,14 @@ class S(BaseHTTPRequestHandler):
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]
           if status == "on":
-            call("sudo modprobe bcm2835-v4l2", shell=True)
-            call("sudo mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www'", shell=True)
+            call("modprobe bcm2835-v4l2", shell=True)
+            call("mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www'", shell=True)
           else:
-            call("sudo pkill -9 mjpg_streamer", shell=True)
-            call("sudo rmmod bcm2835-v4l2", shell=True)
+            call("pkill -9 mjpg_streamer", shell=True)
+            call("rmmod bcm2835-v4l2", shell=True)
 
         elif self.path.startswith("/off"):
-          call("sudo halt", shell=True)
+          call("halt", shell=True)
 
 def run(server_class=HTTPServer, handler_class=S, port=80):
     server_address = ('', port)
