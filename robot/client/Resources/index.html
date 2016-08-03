@@ -176,7 +176,7 @@
 
       if (elem.style.opacity == 1.0) {
         document.getElementById('stream').style.display = 'block';
-        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + stream_port + "/?action=stream"; }, 2000);
+        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + stream_port + "/?action=stream"; }, 1000);
         request(url + "/camera:on", true);
       } else {
         clearTimeout(cameraTimeout);
