@@ -82,7 +82,7 @@
 
   <script type="text/javascript">
     const speed_step = 20;
-    const turn_step = 2;
+    const turn_step = 1;
     const update_interval = 10;
     const url = "http://192.168.1.71";
     const stream_port = 10088;
@@ -101,6 +101,7 @@
     var steering_wheel_image = new Image();
     var once = true;
     var abort = false;
+    var cameraTimeout = 0;
 
     init();
 
@@ -175,9 +176,10 @@
 
       if (elem.style.opacity == 1.0) {
         document.getElementById('stream').style.display = 'block';
-        document.getElementById('stream').src = url + ":" + stream_port + "/?action=stream";
+        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + stream_port + "/?action=stream"; }, 2000);
         request(url + "/camera:on", true);
       } else {
+        clearTimeout(cameraTimeout);
         document.getElementById('stream').style.display = 'none';
         document.getElementById('stream').src = "";
         request(url + "/camera:off", true);

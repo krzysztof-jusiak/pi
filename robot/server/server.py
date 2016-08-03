@@ -38,12 +38,12 @@ class S(BaseHTTPRequestHandler):
           #engine left
           GPIO.output(Motor1A,GPIO.LOW)
           GPIO.output(Motor1B,GPIO.HIGH)
-          e2.ChangeDutyCycle(int(left))
+          e1.ChangeDutyCycle(int(left))
 
           #engine right
           GPIO.output(Motor2A,GPIO.LOW)
           GPIO.output(Motor2B,GPIO.HIGH)
-          e1.ChangeDutyCycle(int(right))
+          e2.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/reverse"):
           left = self.path.split(':')[1]
@@ -53,21 +53,19 @@ class S(BaseHTTPRequestHandler):
           #engine left
           GPIO.output(Motor1A,GPIO.HIGH)
           GPIO.output(Motor1B,GPIO.LOW)
-          e2.ChangeDutyCycle(int(left))
+          e1.ChangeDutyCycle(int(left))
 
           #engine right
           GPIO.output(Motor2A,GPIO.HIGH)
           GPIO.output(Motor2B,GPIO.LOW)
-          e1.ChangeDutyCycle(int(right))
+          e2.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]
           if status == "on":
-            call("modprobe bcm2835-v4l2", shell=True)
             call("mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www'", shell=True)
           else:
             call("pkill -9 mjpg_streamer", shell=True)
-            call("rmmod bcm2835-v4l2", shell=True)
 
         elif self.path.startswith("/off"):
           call("halt", shell=True)
