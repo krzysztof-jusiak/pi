@@ -75,7 +75,11 @@
   <div class="progress_bar" style="position:absolute; right:10; top:10;"><div class="speed_bar" id="right_engine_speed_bar" style="width:0;"></div></div>
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="close_nav();">&times;</a>
+    <label style="margin:30; color:white;" for="ip">Camera: 'http://address:port'</label>
+    <input id="camera_address" style="margin-left:30; margin-top:5;" type="text" maxlength="512" onchange="save_item('camera_address', this.value);" />
+    <hr />
     <a href="javascript:void(0)" onclick="request(url + '/off', true); close_nav();">Shut Down</a>
+    <hr />
   </div>
   <input type="image" src="img/menu.png" style="position:absolute; outline: none; width:50; height:50; left:10; top:30;" onclick="open_nav();" />
   <iframe id="stream"  width="100%" height="95%" frameBorder="0"></iframe>
@@ -84,8 +88,7 @@
     const speed_step = 20;
     const turn_step = 1;
     const update_interval = 10;
-    const url = "http://192.168.1.71";
-    const stream_port = 10088;
+    const default_camera_address = "http://192.168.1.71:10088";
     const TO_RADIANS = Math.PI / 180;
 
     var max_speed = 75;
@@ -102,6 +105,8 @@
     var once = true;
     var abort = false;
     var cameraTimeout = 0;
+    var url = default_camera_address.substr(0, default_camera_address.indexOf(':'));
+    var port = default_camera_address.substr(default_camera_address.indexOf(':') + 1);
 
     init();
 
@@ -176,7 +181,7 @@
 
       if (elem.style.opacity == 1.0) {
         document.getElementById('stream').style.display = 'block';
-        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + stream_port + "/?action=stream"; }, 1000);
+        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + port + "/?action=stream"; }, 1000);
         request(url + "/camera:on", true);
       } else {
         clearTimeout(cameraTimeout);
@@ -214,11 +219,17 @@
 
     function init() {
       if (once) {
-        request(url + "/forward:0:0", true); // stop
-        request(url + "/camera:off", true);
+        var camera_address = localStorage.getItem('camera_address');
+        if (camera_address == null) {
+          camera_address = default_camera_address;
+        }
 
+        url = camera_address.substr(0, camera_address.indexOf(':'));
+        port = camera_address.substr(camera_address.indexOf(':') + 1);
+
+        document.getElementById("camera_address").value = url + ":" + port;
         document.getElementById('camera').style.opacity = 0.5;
-        steering_wheel_image.src ="img/sw.png";
+        steering_wheel_image.src = "img/sw.png";
 
         document.onkeydown = function (event) {
           event = event || window.event;
@@ -252,6 +263,10 @@
         }
 
         rotate_steering_wheel(0);
+
+        request(url + "/forward:0:0", true); // stop
+        request(url + "/camera:off", true);
+
         once = false;
       }
     }
@@ -304,6 +319,14 @@
     function close_nav() {
         document.getElementById("mySidenav").style.width = "0";
         document.body.style.backgroundColor = "white";
+    }
+
+    function save_item(item, value) {
+      if (value == "") {
+        localStorage.removeItem(item);
+      } else {
+        localStorage.setItem(item, value);
+      }
     }
     </script>
 </body>
