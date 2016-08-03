@@ -5,8 +5,6 @@ import SocketServer
 import RPi.GPIO as GPIO
 import sys
 
-GPIO.setmode(GPIO.BOARD)
-
 Motor1A = 18 #GP23
 Motor1B = 16 #GP24
 Motor1E = 12 #GP18
@@ -14,19 +12,24 @@ Motor2A = 35 #GP19
 Motor2B = 37 #GP26
 Motor2E = 33 #GP13
 
+GPIO.setmode(GPIO.BOARD)
+
+#engine left
 GPIO.setup(Motor1A, GPIO.OUT)
 GPIO.setup(Motor1B, GPIO.OUT)
 GPIO.setup(Motor1E, GPIO.OUT)
 e1 = GPIO.PWM(Motor1E, 100) # freq, in hertz
 e1.start(0)
 
+#engine right
+GPIO.setup(Motor1A, GPIO.OUT)
 GPIO.setup(Motor2A, GPIO.OUT)
 GPIO.setup(Motor2B, GPIO.OUT)
 GPIO.setup(Motor2E, GPIO.OUT)
 e2 = GPIO.PWM(Motor2E, 100) # freq, in hertz
 e2.start(0)
 
-class S(BaseHTTPRequestHandler):
+class HTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
 
@@ -36,13 +39,13 @@ class S(BaseHTTPRequestHandler):
           print "forward: " + left + ":" + right
 
           #engine left
-          GPIO.output(Motor1A,GPIO.LOW)
-          GPIO.output(Motor1B,GPIO.HIGH)
+          GPIO.output(Motor1A, GPIO.LOW)
+          GPIO.output(Motor1B, GPIO.HIGH)
           e1.ChangeDutyCycle(int(left))
 
           #engine right
-          GPIO.output(Motor2A,GPIO.LOW)
-          GPIO.output(Motor2B,GPIO.HIGH)
+          GPIO.output(Motor2A, GPIO.LOW)
+          GPIO.output(Motor2B, GPIO.HIGH)
           e2.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/reverse"):
@@ -51,17 +54,19 @@ class S(BaseHTTPRequestHandler):
           print "reverse: " + left + ":" + right
 
           #engine left
-          GPIO.output(Motor1A,GPIO.HIGH)
-          GPIO.output(Motor1B,GPIO.LOW)
+          GPIO.output(Motor1A, GPIO.HIGH)
+          GPIO.output(Motor1B, GPIO.LOW)
           e1.ChangeDutyCycle(int(left))
 
           #engine right
-          GPIO.output(Motor2A,GPIO.HIGH)
-          GPIO.output(Motor2B,GPIO.LOW)
+          GPIO.output(Motor2A, GPIO.HIGH)
+          GPIO.output(Motor2B, GPIO.LOW)
           e2.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]
+          print "camera: " + status
+
           if status == "on":
             call("mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www' &", shell=True)
           else:
@@ -70,14 +75,17 @@ class S(BaseHTTPRequestHandler):
         elif self.path.startswith("/off"):
           call("halt", shell=True)
 
-def run(server_class=HTTPServer, handler_class=S, port=80):
+def run(server_class=HTTPServer, handler_class=HTTPHandler, port=80):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
 try:
     run()
-except KeyboardInterrupt:
-    GPIO.output(Motor1E,GPIO.LOW)
-    GPIO.output(Motor2E,GPIO.LOW)
+except:
+    e1.stop()
+    e2.stop()
+    GPIO.output(Motor1E, GPIO.LOW)
+    GPIO.output(Motor2E, GPIO.LOW)
     GPIO.cleanup()
+    call("pkill -9 mjpg_streamer", shell=True)
