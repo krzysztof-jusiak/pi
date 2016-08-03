@@ -182,11 +182,13 @@
       if (elem.style.opacity == 1.0) {
         document.getElementById('stream').style.display = 'block';
         cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + port + "/?action=stream"; }, 1000);
+        localStorage.setItem('camera_is_on', '');
         request(url + "/camera:on", true);
       } else {
         clearTimeout(cameraTimeout);
         document.getElementById('stream').style.display = 'none';
         document.getElementById('stream').src = "";
+        localStorage.removeItem('camera_is_on');
         request(url + "/camera:off", true);
       }
     }
@@ -228,7 +230,6 @@
         port = camera_address.substr(camera_address.indexOf(':') + 1);
 
         document.getElementById("camera_address").value = url + ":" + port;
-        document.getElementById('camera').style.opacity = 0.5;
         steering_wheel_image.src = "img/sw.png";
 
         document.onkeydown = function (event) {
@@ -264,8 +265,16 @@
 
         rotate_steering_wheel(0);
 
+        if (localStorage.getItem('camera_is_on') != null) {
+          document.getElementById('stream').style.display = 'block';
+          document.getElementById('stream').src = url + ":" + port + "/?action=stream";
+          document.getElementById('camera').style.opacity = 1.0;
+        } else {
+          document.getElementById('camera').style.opacity = 0.5;
+          request(url + "/camera:off", true);
+        }
+
         request(url + "/forward:0:0", true); // stop
-        request(url + "/camera:off", true);
 
         once = false;
       }
