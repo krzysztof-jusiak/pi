@@ -64,6 +64,11 @@ camera:
   ./mjpg_streamer -i "./input_uvc.so -n -f 15 -r 640x360" -o "./output_http.so -p 10088 -w /usr/local/www"
   http://192.168.1.71:10088/?action=stream
 
+  speed up:
+    tmp storage (https://www.raspberrypi.org/forums/viewtopic.php?t=45178)
+      /etc/default/tmpfs: RAMTMP=yes #mjpg_streamer -i 'input_file.so -f /tmp/mjpg -r'
+
+
 tools:
   fritzing
   intel xdk
