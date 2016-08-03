@@ -63,7 +63,7 @@ class S(BaseHTTPRequestHandler):
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]
           if status == "on":
-            call("mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www'", shell=True)
+            call("mjpg_streamer -i 'input_uvc.so -n -f 5 -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www' &", shell=True)
           else:
             call("pkill -9 mjpg_streamer", shell=True)
 
