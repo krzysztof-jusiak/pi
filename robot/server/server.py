@@ -31,8 +31,6 @@ e2.start(0)
 
 class HTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-
         if self.path.startswith("/forward"):
           left = self.path.split(':')[1]
           right = self.path.split(':')[2]
