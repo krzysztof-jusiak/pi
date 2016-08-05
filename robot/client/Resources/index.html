@@ -263,7 +263,7 @@
             alpha = alpha > 360 ? alpha - 720 : (alpha > 180 ? alpha - 360 : alpha);
             document.getElementById("test").innerHTML = event.alpha + " " + alpha;
             rotate_steering_wheel(alpha);
-          }, false);
+          }, true);
         }
 
         rotate_steering_wheel(0);
