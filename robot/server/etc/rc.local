@@ -1,1 +1,3 @@
-LD_LIBRARY_PATH=/opt/pi/robot/server/mjpg-streamer/mjpg-streamer python /opt/pi/robot/server/server.py &
+#!/bin/sh -e
+LD_LIBRARY_PATH=/opt/pi/robot/server/mjpg-streamer/mjpg-streamer python /opt/pi/robot/server/server.py 2>&1 >/dev/null &
+exit 0
