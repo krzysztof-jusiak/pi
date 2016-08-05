@@ -116,7 +116,7 @@
     init();
 
     function max_turn() {
-      return Math.abs(max_speed);
+      return Math.abs(max_speed) - max_turn_offset;
     }
 
     function update_speed(left, right, value) {
@@ -197,10 +197,8 @@
     }
 
     function is_alpha_allowed(value) {
-
       value *= turn_step;
-        document.getElementById("test").innerHTML = value;
-      return value > (-max_turn() + max_turn_offset) && value < (max_turn() - max_turn_offset);
+      return value > -max_turn() && value < max_turn();
     }
 
     function update_gear(value) {
