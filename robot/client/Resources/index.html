@@ -256,15 +256,17 @@
            return false;
         };
 
-        window.ondeviceorientation = function(event){
+        if (window.DeviceOrientationEvent) {
+          window.addEventListener('deviceorientation', function(event) {
             if(isFirstTime){
                 alphaOffset = event.alpha;
                 isFirstTime = false;
                 return;
             }
             alpha = event.alpha - alphaOffset;
-            alpha = alpha < 0 ? Math.abs(alpha) - 360 : alpha;
+            alpha = alpha > 360 ? alpha - 720 : (alpha > 180 ? alpha - 360 : alpha);
             rotate_steering_wheel(alpha);
+          }, true);
         }
 
         rotate_steering_wheel(0);
