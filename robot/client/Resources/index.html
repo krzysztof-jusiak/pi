@@ -197,7 +197,9 @@
     }
 
     function is_alpha_allowed(value) {
+
       value *= turn_step;
+        document.getElementById("test").innerHTML = value;
       return value > (-max_turn() + max_turn_offset) && value < (max_turn() - max_turn_offset);
     }
 
@@ -261,7 +263,6 @@
         if (window.DeviceOrientationEvent) {
           window.addEventListener('deviceorientation', function(event) {
             alpha = event.alpha > 360 ? event.alpha - 720 : (event.alpha > 180 ? event.alpha - 360 : event.alpha);
-            document.getElementById("test").innerHTML = event.alpha + " " + alpha;
             rotate_steering_wheel(alpha);
           }, false);
         }
