@@ -89,6 +89,7 @@
   <script type="text/javascript">
     const speed_step = 20;
     const turn_step = 1;
+    const max_turn_offset = 4;
     const update_interval = 10;
     const default_camera_address = "http://192.168.1.71:10088";
     const TO_RADIANS = Math.PI / 180;
@@ -197,7 +198,7 @@
 
     function is_alpha_allowed(value) {
       value *= turn_step;
-      return value > -max_turn() && value < max_turn();
+      return value > -max_turn() + max_turn_offset && value < max_turn() - max_turn_offset;
     }
 
     function update_gear(value) {
