@@ -263,7 +263,7 @@
                 return;
             }
             alpha = event.alpha - alphaOffset;
-            alpha = alpha < 0 ? 360 - Math.abs(alpha) : alpha;
+            alpha = alpha < 0 ? Math.abs(alpha) - 360 : alpha;
             rotate_steering_wheel(alpha);
         }
 
