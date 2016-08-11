@@ -21,7 +21,7 @@ GPIO.setup(Motor1B, GPIO.OUT)
 GPIO.setup(Motor1E, GPIO.OUT)
 e1 = GPIO.PWM(Motor1E, 100) # freq, in hertz
 e1.start(0)
-e1_correction = 15
+e1_correction = 0
 
 #engine right
 GPIO.setup(Motor1A, GPIO.OUT)
