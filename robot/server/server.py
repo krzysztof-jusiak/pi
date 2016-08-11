@@ -5,12 +5,12 @@ import SocketServer
 import RPi.GPIO as GPIO
 import sys
 
-Motor1A = 37 #GP26
-Motor1B = 35 #GP19
+Motor1A = 35 #GP19
+Motor1B = 37 #GP26
 Motor1E = 33 #GP13
 
-Motor2A = 12 #GP18
-Motor2B = 16 #GP24
+Motor2A = 16 #GP24
+Motor2B = 12 #GP18
 Motor2E = 18 #GP23
 
 GPIO.setmode(GPIO.BOARD)
