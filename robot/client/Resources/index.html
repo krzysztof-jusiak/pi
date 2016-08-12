@@ -64,8 +64,9 @@
 
 <body>
   <canvas style="position:absolute; left:20; bottom:10;" id="canvas" width="118" height="128"></canvas>
-  <input class="opacity_img" type="image" src="img/gas.png" id="accelerate" style="position:absolute; outline: none; right:5; bottom:110; border-radius:100%;" ontouchstart="acc_begin();" ontouchend="acc_end()" ontouchcancel="acc_end()" ontouchleave="acc_end()" />
-  <input class="opacity_img" type="image" src="img/break.png" id="break" style="position:absolute; outline: none; right:5; bottom:5; border-radius:100%;" ontouchstart="stop();" />
+  <canvas style="position:absolute; right:20; bottom:10;" id="joystick" width="200" height="200"></canvas>
+  <!--<input class="opacity_img" type="image" src="img/gas.png" id="accelerate" style="position:absolute; outline: none; right:5; bottom:110; border-radius:100%;" ontouchstart="acc_begin();" ontouchend="acc_end()" ontouchcancel="acc_end()" ontouchleave="acc_end()" />-->
+  <!--<input class="opacity_img" type="image" src="img/break.png" id="break" style="position:absolute; outline: none; right:5; bottom:5; border-radius:100%;" ontouchstart="stop();" />-->
   <input type="image" src="img/camera.png" id="camera" style="position:absolute; outline: none; width:50; height:50; right:70; top:30;" onclick="camera();" />
   <input class="opacity_img" type="image" src="img/refresh.png" id="refresh" style="position:absolute; outline: none; width:50; height:50; right:10; top:30;" ontouchstart="refresh();" onclick="refresh();" />
   <input type="image" src="img/gears.png" style="position:absolute; outline: none; left:13; top:127;" />
@@ -85,6 +86,8 @@
   <input type="image" src="img/menu.png" style="position:absolute; outline: none; width:50; height:50; left:10; top:30;" onclick="open_nav();" />
   <iframe id="stream"  width="100%" height="95%" frameBorder="0"></iframe>
 
+  <div id="debug">debug</div>
+
   <script type="text/javascript">
     const speed_step = 20;
     const turn_step = 1;
@@ -100,7 +103,8 @@
     var old_left_speed = 0;
     var right_speed = 0;
     var old_right_speed = 0;
-    var isFirstTime = true;
+    var accelerating = false;
+    var position = { x: 0, y: 0 };
     var alpha = 0;
     var inter = 0;
     var requests = [];
@@ -266,6 +270,60 @@
         }
 
         request(url + "/forward:0:0", true); // stop
+
+
+        var canvas = document.getElementById('joystick');
+
+    canvas.addEventListener("touchstart", function (e) { accelerating = true; }, false);
+    canvas.addEventListener("touchend", function (e) {
+      accelerating = false;
+      joystick(canvas.width / 2, canvas.height / 2);
+      left = 0;
+      right = 0;
+      alpha = 0;
+      update_speed(left, right, alpha);
+    }, false);
+
+    canvas.addEventListener("touchcancel", function (e) {
+      accelerating = false;
+      joystick(canvas.width / 2, canvas.height / 2);
+      left = 0;
+      right = 0;
+      alpha = 0;
+      update_speed(left, right, alpha);
+    }, false);
+
+    canvas.addEventListener("touchmove", function (e) {
+      position = getMousePos(canvas, e);
+      if (accelerating) {
+          joystick(position.x, position.y);
+          alpha = 100 - position.x;
+
+          if (position.y < 100) {
+            max_speed = 100;
+            left = 100 - position.y;
+            right = 100 - position.y;
+            left = Math.min(left, Math.abs(max_speed));
+            right = Math.min(right, Math.abs(max_speed));
+          }
+          else if (position.y > 100) {
+            max_speed = -60; 
+            left = position.y - 100;
+            right = position.y - 100;
+            left = Math.min(left, Math.abs(max_speed));
+            right = Math.min(right, Math.abs(max_speed));
+          }
+
+        document.getElementById("debug").innerHTML = max_speed;
+        update_speed(left, right, alpha);
+      }
+    }, false);
+
+      var ctx = canvas.getContext("2d");
+      ctx.rect(0, 0, canvas.width, canvas.height);
+      ctx.stroke();
+      joystick(canvas.width / 2, canvas.height / 2);
+
         once = false;
       }
     }
@@ -326,6 +384,27 @@
         localStorage.setItem(item, value);
       }
     }
+
+    function getMousePos(canvasDom, mouseEvent) {
+      var rect = canvasDom.getBoundingClientRect();
+      return {
+        x: mouseEvent.clientX - rect.left,
+        y: mouseEvent.clientY - rect.top
+      };
+    }
+
+    function joystick(x , y) {
+      var canvas = document.getElementById('joystick');
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(1, 1, canvas.width - 2, canvas.height - 2);
+      ctx.beginPath();
+      ctx.arc(x, y, 20, 0, 2 * Math.PI, false);
+      ctx.fillStyle = 'black';
+      ctx.fill();
+      ctx.stroke();
+    }
+
+
     </script>
 </body>
 </html>
