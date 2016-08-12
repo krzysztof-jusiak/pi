@@ -294,7 +294,7 @@
     }, false);
 
     canvas.addEventListener("touchmove", function (e) {
-      position = getMousePos(canvas, e);
+      position = get_position(canvas, e);
       if (accelerating) {
           joystick(position.x, position.y);
           alpha = 100 - position.x;
@@ -385,11 +385,11 @@
       }
     }
 
-    function getMousePos(canvasDom, mouseEvent) {
-      var rect = canvasDom.getBoundingClientRect();
+    function get_position(canvas, event) {
+      var rect = canvas.getBoundingClientRect();
       return {
-        x: mouseEvent.clientX - rect.left,
-        y: mouseEvent.clientY - rect.top
+        x: event.touches[0].clientX - rect.left,
+        y: event.touches[0].clientY - rect.top
       };
     }
 
