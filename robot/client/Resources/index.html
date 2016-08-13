@@ -79,7 +79,7 @@
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="close_nav();">&times;</a>
     <label style="margin:30; color:white;" for="ip">Camera: 'http://address:port'</label>
-    <input id="camera_address" style="margin-left:30; margin-top:5; width:200px;" type="text" maxlength="512" onchange="save_item('camera_address', this.value);" />
+    <input id="camera_address" style="margin-left:30; margin-top:5; width:200px;" type="text" maxlength="512" onchange="update_address(this.value);" />
     <hr />
     <a href="javascript:void(0)" onclick="request(url + '/off', true); close_nav();">Shut Down</a>
     <hr />
@@ -316,6 +316,12 @@
         }
         rotate_steering_wheel(0);
       }
+    }
+
+    function update_address(value) {
+      url = value.substr(0, value.lastIndexOf(':'));
+      port = value.substr(value.lastIndexOf(':') + 1);
+      save_item('camera_address', value);
     }
 
     function init() {

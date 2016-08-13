@@ -68,6 +68,12 @@ camera:
     tmp storage (https://www.raspberrypi.org/forums/viewtopic.php?t=45178)
       /etc/default/tmpfs: RAMTMP=yes #mjpg_streamer -i 'input_file.so -f /tmp/mjpg -r'
 
+no-ip:
+  wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz
+  tar vzxf noip-duc-linux.tar.gz
+  cd noip-2.1.9-1
+  make
+  sudo make install
 
 tools:
   fritzing
