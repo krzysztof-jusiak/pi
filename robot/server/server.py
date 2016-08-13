@@ -35,7 +35,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/frames"):
           self.frames = int(self.path.split(':')[1])
-          print "frames: " + self.frames
+          print "frames: " + str(self.frames)
         elif self.path.startswith("/ping"):
           self.send_response(200)
           self.send_header('Content-type', 'text/html')
