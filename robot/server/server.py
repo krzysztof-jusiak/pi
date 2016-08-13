@@ -21,7 +21,6 @@ GPIO.setup(Motor1B, GPIO.OUT)
 GPIO.setup(Motor1E, GPIO.OUT)
 e1 = GPIO.PWM(Motor1E, 100) # freq, in hertz
 e1.start(0)
-e1_correction = 0
 
 #engine right
 GPIO.setup(Motor1A, GPIO.OUT)
@@ -30,7 +29,6 @@ GPIO.setup(Motor2B, GPIO.OUT)
 GPIO.setup(Motor2E, GPIO.OUT)
 e2 = GPIO.PWM(Motor2E, 100) # freq, in hertz
 e2.start(0)
-e2_correction = 0
 
 class HTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -47,12 +45,12 @@ class HTTPHandler(BaseHTTPRequestHandler):
           #engine left
           GPIO.output(Motor1A, GPIO.LOW)
           GPIO.output(Motor1B, GPIO.HIGH)
-          e1.ChangeDutyCycle(max(0, int(left) - e1_correction))
+          e1.ChangeDutyCycle(left)
 
           #engine right
           GPIO.output(Motor2A, GPIO.LOW)
           GPIO.output(Motor2B, GPIO.HIGH)
-          e2.ChangeDutyCycle(max(0, int(right) - e2_correction))
+          e2.ChangeDutyCycle(right)
 
         elif self.path.startswith("/reverse"):
           left = self.path.split(':')[1]
@@ -62,12 +60,12 @@ class HTTPHandler(BaseHTTPRequestHandler):
           #engine left
           GPIO.output(Motor1A, GPIO.HIGH)
           GPIO.output(Motor1B, GPIO.LOW)
-          e1.ChangeDutyCycle(max(0, int(left) - e1_correction))
+          e1.ChangeDutyCycle(left)
 
           #engine right
           GPIO.output(Motor2A, GPIO.HIGH)
           GPIO.output(Motor2B, GPIO.LOW)
-          e2.ChangeDutyCycle(max(0, int(right) - e2_correction))
+          e2.ChangeDutyCycle(right)
 
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]

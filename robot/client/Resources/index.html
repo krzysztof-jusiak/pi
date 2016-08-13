@@ -1,4 +1,3 @@
-<!--python -m SimpleHTTPServer 80-->
 <html>
 <head>
   <meta charset="utf-8">
@@ -67,14 +66,14 @@
   <canvas style="position:absolute; right:20; bottom:10;" id="joystick" width="200" height="200"></canvas>
   <input class="opacity_img" type="image" src="img/gas.png" id="accelerate" style="position:absolute; outline: none; right:5; bottom:110; border-radius:100%;" ontouchstart="acc_begin();" ontouchend="acc_end()" ontouchcancel="acc_end()" ontouchleave="acc_end()" />
   <input class="opacity_img" type="image" src="img/break.png" id="break" style="position:absolute; outline: none; right:5; bottom:5; border-radius:100%;" ontouchstart="stop();" />
-  <input type="image" src="img/connection.png" id="connection" style="position:absolute; outline: none; width:50; height:50; left:80; top:30;" />
+  <input type="image" src="img/connection.png" id="connection" style="position:absolute; outline: none; width:25; height:25; left:10; bottom:10;" />
   <input type="image" src="img/camera.png" id="camera" style="position:absolute; outline: none; width:50; height:50; right:120; top:30;" onclick="camera();" />
   <input type="image" src="img/mode.png" id="mode" style="position:absolute; outline: none; width:50; height:50; right:67; top:30;" onclick="toggle_mode();" />
   <input class="opacity_img" type="image" src="img/refresh.png" id="refresh" style="position:absolute; outline: none; width:50; height:50; right:10; top:30;" ontouchstart="refresh();" onclick="refresh();" />
   <input type="image" src="img/gears.png" id="gears" style="position:absolute; outline: none; left:13; top:127;" />
   <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:49; top:175;" type="radio" id="gear_2" name="gear" onchange="max_speed = 100;"/>
-  <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:49; top:122;" type="radio" id="gear_1" name="gear" checked="checked" onchange="max_speed = 75;" />
-  <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:11; top:122;" type="radio" id="gear_R" name="gear" onchange="max_speed = -60;"/>
+  <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:49; top:122;" type="radio" id="gear_1" name="gear" checked="checked" onchange="max_speed = 80;" />
+  <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:11; top:122;" type="radio" id="gear_R" name="gear" onchange="max_speed = -70;"/>
   <div class="progress_bar" style="position:absolute; left:10; top:10;"><div class="speed_bar" id="left_engine_speed_bar" style="width:0;"></div></div>
   <div class="progress_bar" style="position:absolute; right:10; top:10;"><div class="speed_bar" id="right_engine_speed_bar" style="width:0;"></div></div>
   <div id="mySidenav" class="sidenav">
@@ -97,7 +96,7 @@
     const TO_RADIANS = Math.PI / 180;
     const Mode = { Joystick:0, Wheel:1 };
 
-    var max_speed = 75;
+    var max_speed = 80;
     var left = 0;
     var right = 0;
     var left_speed = 0;
@@ -107,6 +106,8 @@
     var accelerating = false;
     var position = { x:0, y:0 };
     var alpha = 0;
+    var alpha_offset = 0;
+    var first_alpha = true;
     var inter = 0;
     var requests = [];
     var steering_wheel_image = new Image();
@@ -115,6 +116,7 @@
     var cameraTimeout = 0;
     var first_inter = null;
     var connecting = false;
+    var connected = false;
     var url = default_camera_address.substr(0, default_camera_address.lastIndexOf(':'));
     var port = default_camera_address.substr(default_camera_address.lastIndexOf(':') + 1);
     var mode = Mode.Joystick;
@@ -279,7 +281,7 @@
                 right = Math.min(right, Math.abs(max_speed));
               }
               else if (position.y > 100) {
-                max_speed = -60;
+                max_speed = -70;
                 left = position.y - 100;
                 right = position.y - 100;
                 left = Math.min(left, Math.abs(max_speed));
@@ -299,11 +301,16 @@
         set_visibility("gear_2", true);
         set_visibility("gear_1", true);
         set_visibility("gear_R", true);
-        max_speed = 75;
+        max_speed = 80;
 
         if (window.DeviceOrientationEvent) {
           window.addEventListener('deviceorientation', function(event) {
-            alpha = event.alpha > 360 ? event.alpha - 720 : (event.alpha > 180 ? event.alpha - 360 : event.alpha);
+            if (first_alpha) {
+              alpha_offset = event.alpha;
+              first_alpha = false;
+            }
+            alpha = alpha_offset > 180 ? alpha_offset - event.alpha : event.alpha - alpha_offset;
+            alpha = alpha > 360 ? alpha - 720 : (alpha > 180 ? alpha - 360 : alpha);
             rotate_steering_wheel(alpha);
           }, false);
         }
@@ -398,15 +405,16 @@
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.open("GET", url + '/ping', true);
       xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.status == 200) {
-          set_visibility('connection', true);
-        } else {
-          set_visibility('connection', connecting);
-          connecting = !connecting;
-        }
+        connected = xmlHttp.status == 200;
       };
-      requests.push(xmlHttp);
       xmlHttp.send(null);
+
+      if (connected) {
+        set_visibility('connection', true);
+      } else {
+        set_visibility('connection', connecting);
+        connecting = !connecting;
+      }
     }
 
     function abort_all() {
