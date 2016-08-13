@@ -75,6 +75,9 @@ no-ip:
   make
   sudo make install
 
+  port forwarding:
+    22, 80, 10088
+
 tools:
   fritzing
   intel xdk
