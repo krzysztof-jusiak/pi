@@ -41,7 +41,7 @@
     .sidenav a {
         padding: 8px 8px 8px 32px;
         text-decoration: none;
-        font-size: 25px;
+        font-size: 18px;
         color: #818181;
         display: block;
         transition: 0.3s
@@ -78,8 +78,14 @@
   <div class="progress_bar" style="position:absolute; right:10; top:10;"><div class="speed_bar" id="right_engine_speed_bar" style="width:0;"></div></div>
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="close_nav();">&times;</a>
-    <label style="margin:30; color:white;" for="ip">Camera: 'http://address:port'</label>
+    <label style="margin:30; color:white;" for="ip">'http://address:port'</label>
     <input id="camera_address" style="margin-left:30; margin-top:5; width:200px;" type="text" maxlength="512" onchange="update_address(this.value);" />
+    <br /><br />
+    <hr />
+    <br />
+    <label style="margin:30; color:white;" for="ip">Command:</label>
+    <input id="command" style="margin-left:30; margin-top:5; width:200px;" type="text" maxlength="512" onchange="call_command(this.value);" />
+    <br /><br />
     <hr />
     <a href="javascript:void(0)" onclick="request(url + '/off', true); close_nav();">Shut Down</a>
     <hr />
@@ -324,6 +330,14 @@
       save_item('camera_address', value);
     }
 
+    function call_command(value) {
+      request(url + "/" + value, true);
+    }
+
+    function hide_keyobard() {
+      document.activeElement.blur();
+    }
+
     function init() {
       if (once) {
         var camera_address = localStorage.getItem('camera_address');
@@ -333,6 +347,22 @@
 
         url = camera_address.substr(0, camera_address.lastIndexOf(':'));
         port = camera_address.substr(camera_address.lastIndexOf(':') + 1);
+
+        document.getElementById("camera_address").addEventListener("keyup", function(event) {
+          event.preventDefault();
+          if (event.keyCode == 13) {
+            update_address(document.getElementById("camera_address").value);
+            hide_keyobard();
+          }
+        });
+
+        document.getElementById("command").addEventListener("keyup", function(event) {
+          event.preventDefault();
+          if (event.keyCode == 13) {
+            call_command(document.getElementById("command").value);
+            hide_keyobard();
+          }
+        });
 
         document.getElementById("camera_address").value = url + ":" + port;
         steering_wheel_image.src = "img/sw.png";
