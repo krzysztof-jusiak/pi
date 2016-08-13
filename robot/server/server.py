@@ -36,6 +36,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/ping"):
           self.send_response(200)
+          self.send_header('Content-type', 'text/html')
+          self.end_headers()
         elif self.path.startswith("/forward"):
           left = self.path.split(':')[1]
           right = self.path.split(':')[2]

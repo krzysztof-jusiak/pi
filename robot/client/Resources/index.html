@@ -399,6 +399,7 @@
     function ping_request(url) {
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.onreadystatechange = function() { 
+          console.log(xmlHttp.status);
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
           connected = true;
           connecting = false;
