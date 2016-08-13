@@ -34,7 +34,9 @@ e2_correction = 0
 
 class HTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path.startswith("/forward"):
+        if self.path.startswith("/ping"):
+          self.send_response(200)
+        elif self.path.startswith("/forward"):
           left = self.path.split(':')[1]
           right = self.path.split(':')[2]
           print "forward: " + left + ":" + right
