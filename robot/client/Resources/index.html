@@ -114,7 +114,6 @@
     var abort = false;
     var cameraTimeout = 0;
     var first_inter = null;
-    var connected = false;
     var connecting = false;
     var url = default_camera_address.substr(0, default_camera_address.lastIndexOf(':'));
     var port = default_camera_address.substr(default_camera_address.lastIndexOf(':') + 1);
@@ -365,8 +364,7 @@
         }
         update_mode();
 
-        setInterval(ping, 500);
-
+        setInterval(ping, 1000);
         request(url + "/forward:0:0", true); // stop
         once = false;
       }
@@ -396,17 +394,18 @@
       xmlHttp.send(null);
     }
 
-    function ping_request(url) {
+    function ping() {
       var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open("GET", url + '/ping', true);
       xmlHttp.onreadystatechange = function() { 
-          console.log(xmlHttp.status);
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-          connected = true;
-          connecting = false;
+        if (xmlHttp.status == 200) {
+          set_visibility('connection', true);
+        } else {
+          set_visibility('connection', connecting);
+          connecting = !connecting;
         }
       };
       requests.push(xmlHttp);
-      xmlHttp.open("GET", url, true);
       xmlHttp.send(null);
     }
 
@@ -465,16 +464,6 @@
     function set_visibility(id, value) {
       var e = document.getElementById(id);
       e.style.display = value ? 'block' : 'none';
-    }
-
-    function ping() {
-      if (connected) { 
-        set_visibility('connection', true);
-      } else {
-        set_visibility('connection', connecting);
-        connecting = !connecting;
-        ping_request(url + '/ping');
-      }
     }
     </script>
 </body>
