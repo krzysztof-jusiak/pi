@@ -34,8 +34,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
     def do_GET(self):
         if self.path.startswith("/frames"):
-          self.frames = int(self.path.split(':')[1])
-          print "frames: " + str(self.frames)
+          HTTPHandler.frames = int(self.path.split(':')[1])
+          print "frames: " + str(HTTPHandler.frames)
         elif self.path.startswith("/ping"):
           self.send_response(200)
           self.send_header('Content-type', 'text/html')
@@ -76,7 +76,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           print "camera: " + status
 
           if status == "on":
-            call("mjpg_streamer -i 'input_uvc.so -n -f " + str(self.frames) + " -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www' &", shell=True)
+            call("mjpg_streamer -i 'input_uvc.so -n -f " + str(HTTPHandler.frames) + " -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www' &", shell=True)
           else:
             call("pkill -9 mjpg_streamer", shell=True)
 
