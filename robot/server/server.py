@@ -30,13 +30,12 @@ GPIO.setup(Motor2E, GPIO.OUT)
 e2 = GPIO.PWM(Motor2E, 100) # freq, in hertz
 e2.start(0)
 
-frames = 30
-
 class HTTPHandler(BaseHTTPRequestHandler):
+    frames = 30
     def do_GET(self):
         if self.path.startswith("/frames"):
-          frames = self.path.split(':')[1]
-          print "frames: " + frames
+          self.frames = self.path.split(':')[1]
+          print "frames: " + self.frames
         elif self.path.startswith("/ping"):
           self.send_response(200)
           self.send_header('Content-type', 'text/html')
@@ -77,7 +76,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           print "camera: " + status
 
           if status == "on":
-            call("mjpg_streamer -i 'input_uvc.so -n -f " + frames + " -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www' &", shell=True)
+            call("mjpg_streamer -i 'input_uvc.so -n -f " + self.frames + " -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www' &", shell=True)
           else:
             call("pkill -9 mjpg_streamer", shell=True)
 
