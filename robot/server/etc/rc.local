@@ -1,4 +1,4 @@
 #!/bin/sh -e
 /usr/local/bin/noip2
-LD_LIBRARY_PATH=/opt/pi/robot/server/mjpg-streamer/mjpg-streamer python /opt/pi/robot/server/server.py 2>&1 >/dev/null &
+cd /opt/pi/robot/client/Resources && LD_LIBRARY_PATH=/opt/pi/robot/server/mjpg-streamer/mjpg-streamer python /opt/pi/robot/server/server.py 2>&1 >/dev/null &
 exit 0
