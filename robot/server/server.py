@@ -42,34 +42,34 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
         elif self.path.startswith("/forward"):
-          left = int(self.path.split(':')[1])
-          right = int(self.path.split(':')[2])
+          left = self.path.split(':')[1]
+          right = self.path.split(':')[2]
           print "forward: " + left + ":" + right
 
           #engine left
           GPIO.output(Motor1A, GPIO.LOW)
           GPIO.output(Motor1B, GPIO.HIGH)
-          e1.ChangeDutyCycle(left)
+          e1.ChangeDutyCycle(int(left))
 
           #engine right
           GPIO.output(Motor2A, GPIO.LOW)
           GPIO.output(Motor2B, GPIO.HIGH)
-          e2.ChangeDutyCycle(right)
+          e2.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/reverse"):
-          left = int(self.path.split(':')[1])
-          right = int(self.path.split(':')[2])
+          left = self.path.split(':')[1]
+          right = self.path.split(':')[2]
           print "reverse: " + left + ":" + right
 
           #engine left
           GPIO.output(Motor1A, GPIO.HIGH)
           GPIO.output(Motor1B, GPIO.LOW)
-          e1.ChangeDutyCycle(left)
+          e1.ChangeDutyCycle(int(left))
 
           #engine right
           GPIO.output(Motor2A, GPIO.HIGH)
           GPIO.output(Motor2B, GPIO.LOW)
-          e2.ChangeDutyCycle(right)
+          e2.ChangeDutyCycle(int(right))
 
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]
