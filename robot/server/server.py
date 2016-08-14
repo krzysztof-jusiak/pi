@@ -96,13 +96,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/off"):
           call("halt", shell=True)
 
-def run(server_class=HTTPServer, handler_class=HTTPHandler, port=80):
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    httpd.serve_forever()
-
 try:
-    run()
+    server_address = ('', 80)
+    httpd = HTTPServer(server_address, HTTPHandler)
+    httpd.serve_forever()
 except:
     httpd.server_close()
     e1.stop()
