@@ -33,6 +33,12 @@ e2.start(0)
 
 class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
+
+    def handle_error(self, request, client_address):
+      print "error:"  + client_address
+      e1.ChangeDutyCycle(0)
+      e2.ChangeDutyCycle(0)
+
     def do_GET(self):
         if self.path == "/":
           self.send_response(200)
@@ -104,6 +110,7 @@ def run(server_class=HTTPServer, handler_class=HTTPHandler, port=80):
 try:
     run()
 except:
+    httpd.server_close()
     e1.stop()
     e2.stop()
     GPIO.output(Motor1E, GPIO.LOW)
