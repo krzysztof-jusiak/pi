@@ -42,8 +42,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
         elif self.path.startswith("/forward"):
-          left = self.path.split(':')[1]
-          right = self.path.split(':')[2]
+          left = int(self.path.split(':')[1])
+          right = int(self.path.split(':')[2])
           print "forward: " + left + ":" + right
 
           #engine left
@@ -57,8 +57,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           e2.ChangeDutyCycle(right)
 
         elif self.path.startswith("/reverse"):
-          left = self.path.split(':')[1]
-          right = self.path.split(':')[2]
+          left = int(self.path.split(':')[1])
+          right = int(self.path.split(':')[2])
           print "reverse: " + left + ":" + right
 
           #engine left
