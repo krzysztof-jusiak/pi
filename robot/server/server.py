@@ -39,8 +39,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
           with open('index.html') as f: self.wfile.write(f.read())
-      	elif self.path.endswith(".png"):
- 	        self.send_response(200)
+        elif self.path.endswith(".png"):
+          self.send_response(200)
           self.send_header('Content-type', 'image/png')
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
