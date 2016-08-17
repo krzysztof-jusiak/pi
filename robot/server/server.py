@@ -6,15 +6,11 @@ import RPi.GPIO as GPIO
 import sys
 import os
 
+GPIO.setmode(GPIO.BOARD)
+
 Motor1A = 35 #GP19
 Motor1B = 37 #GP26
 Motor1E = 33 #GP13
-
-Motor2A = 16 #GP24
-Motor2B = 12 #GP18
-Motor2E = 18 #GP23
-
-GPIO.setmode(GPIO.BOARD)
 
 #engine left
 GPIO.setup(Motor1A, GPIO.OUT)
@@ -23,6 +19,10 @@ GPIO.setup(Motor1E, GPIO.OUT)
 e1 = GPIO.PWM(Motor1E, 100) # freq, in hertz
 e1.start(0)
 
+Motor2A = 16 #GP24
+Motor2B = 12 #GP18
+Motor2E = 18 #GP23
+
 #engine right
 GPIO.setup(Motor1A, GPIO.OUT)
 GPIO.setup(Motor2A, GPIO.OUT)
@@ -30,6 +30,9 @@ GPIO.setup(Motor2B, GPIO.OUT)
 GPIO.setup(Motor2E, GPIO.OUT)
 e2 = GPIO.PWM(Motor2E, 100) # freq, in hertz
 e2.start(0)
+
+LED = 36 #GP16
+GPIO.setup(LED, GPIO.OUT)
 
 class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
@@ -100,6 +103,7 @@ server_address = ('', 80)
 httpd = HTTPServer(server_address, HTTPHandler)
 
 try:
+    GPIO.output(LED, GPIO.HIGH)
     httpd.serve_forever()
 except:
     httpd.server_close()
