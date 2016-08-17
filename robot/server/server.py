@@ -36,6 +36,7 @@ GPIO.setup(LED, GPIO.OUT)
 
 class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
+    led = False
     def do_GET(self):
         if self.path == "/":
           self.send_response(200)
@@ -57,6 +58,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header('Content-type', 'text/html')
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
+          GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
+          HTTPHandler.led^=True
         elif self.path.startswith("/forward"):
           left = self.path.split(':')[1]
           right = self.path.split(':')[2]
