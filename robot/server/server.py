@@ -34,6 +34,11 @@ e2.start(0)
 LED = 36 #GP16
 GPIO.setup(LED, GPIO.OUT)
 
+SONAR_TRIGGER = 31 #GB6
+SONAR_ECHO = 29 #GB5
+GPIO.setup(SONAR_TRIGGER, GPIO.OUT)
+GPIO.setup(SONAR_ECHO, GPIO.IN)
+
 class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
     led = False
@@ -44,22 +49,47 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
           with open(os.getcwd() + '/index.html') as f: self.wfile.write(f.read())
+
         elif self.path.endswith(".png"):
           self.send_response(200)
           self.send_header('Content-type', 'image/png')
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
           with open(os.getcwd() + self.path) as f: self.wfile.write(f.read())
+
         if self.path.startswith("/frames"):
           HTTPHandler.frames = int(self.path.split(':')[1])
           print "frames: " + str(HTTPHandler.frames)
+
         elif self.path.startswith("/ping"):
+          GPIO.output(SONAR_TRIGGER, GPIO.HIGH)
+          time.sleep(0.00001)
+          GPIO.output(SONAR_TRIGGER, GPIO.LOW)
+
+          while GPIO.input(SONAR_ECHO) == GPIO.LOW:
+            pulse_start = time.time()
+
+          while GPIO.input(SONAR_ECHO) == GPIO.HIGH:
+            pulse_end = time.time()
+
+          pulse_duration = pulse_end - pulse_start
+          distance = pulse_duration * 17150
+          distance = round(distance, 2)
+
+          if distance < 2 or distance > 400:
+            distance = 0
+
+          GPIO.output(SONAR_TRIGGER, GPIO.LOW)
+          GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
+          HTTPHandler.led^=True
+
           self.send_response(200)
           self.send_header('Content-type', 'text/html')
           self.send_header("Access-Control-Allow-Origin", "*")
           self.end_headers()
-          GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
-          HTTPHandler.led^=True
+          self.wfile.write(str(distance))
+          self.wfile.close()
+
         elif self.path.startswith("/forward"):
           left = self.path.split(':')[1]
           right = self.path.split(':')[2]
@@ -106,6 +136,7 @@ server_address = ('', 80)
 httpd = HTTPServer(server_address, HTTPHandler)
 
 try:
+    GPIO.output(SONAR_TRIGGER, GPIO.LOW)
     GPIO.output(LED, GPIO.HIGH)
     httpd.serve_forever()
 except:

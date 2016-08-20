@@ -68,6 +68,71 @@ camera:
     tmp storage (https://www.raspberrypi.org/forums/viewtopic.php?t=45178)
       /etc/default/tmpfs: RAMTMP=yes #mjpg_streamer -i 'input_file.so -f /tmp/mjpg -r'
 
+  picamera:
+    #!/usr/bin/python
+
+    import sys
+    import os
+
+    sys.path.insert(0, '/usr/local/lib')
+    sys.path.insert(0, '/usr/lib/python2.7/dist-packages')
+    sys.path.insert(0, os.path.expanduser('~/lib'))
+
+    from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+    import io
+    import time
+    import picamera
+    import Queue
+    import threading
+
+    camera=None
+    stream=io.BytesIO()
+    ready = False
+
+    def worker():
+      i = 0
+      for foo in camera.capture_continuous(stream,format='jpeg',quality=10,thumbnail=None,use_video_port=True):
+        if i >= 0:
+          stream.seek(0)
+          q.put(stream.getvalue())
+          stream.truncate()
+          i = 0
+        i += 1
+
+    class CamHandler(BaseHTTPRequestHandler):
+      def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
+        self.end_headers()
+        t = threading.Thread(target=worker)
+        t.start()
+        while True:
+          buffer = q.get()
+          self.wfile.write("--jpgboundary")
+          self.send_header('Content-type','image/jpeg')
+          self.send_header('Content-length',len(buffer))
+          self.end_headers()
+          self.wfile.write(buffer)
+          q.task_done()
+        t.join()
+
+    camera = picamera.PiCamera()
+    camera.resolution = (640, 360)
+    camera.framerate = 30
+
+    q = Queue.Queue()
+    time.sleep(1)
+
+    try:
+      server = HTTPServer(('',8080),CamHandler)
+      print "server started"
+      server.serve_forever()
+      q.join()
+    except KeyboardInterrupt:
+      camera.close()
+      server.socket.close()
+
+
 no-ip:
   wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz
   tar vzxf noip-duc-linux.tar.gz
