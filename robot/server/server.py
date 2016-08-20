@@ -5,6 +5,7 @@ import SocketServer
 import RPi.GPIO as GPIO
 import sys
 import os
+import time
 
 GPIO.setmode(GPIO.BOARD)
 

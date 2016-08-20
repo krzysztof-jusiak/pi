@@ -76,7 +76,7 @@
   <input style="position:absolute; transform: rotate(-270deg); transform: scale(2); outline: none; left:11; top:122;" type="radio" id="gear_R" name="gear" onchange="max_speed = -70;"/>
   <div class="progress_bar" style="position:absolute; left:10; top:10;"><div class="speed_bar" id="left_engine_speed_bar" style="width:0;"></div></div>
   <div class="progress_bar" style="position:absolute; right:10; top:10;"><div class="speed_bar" id="right_engine_speed_bar" style="width:0;"></div></div>
-  <div class="distance" style="position:absolute; left: 50%; top: 50%; font-size: 24px;">0 cm</div>
+  <div id="distance" style="position:absolute; left: 45%; top: 50%; font-size: 24px;">0 cm</div>
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="close_nav();">&times;</a>
     <label style="margin:30; color:white;" for="ip">'http://address:port'</label>
@@ -443,7 +443,7 @@
       xmlHttp.open("GET", url + '/ping', true);
       xmlHttp.onreadystatechange = function() { 
         connected = xmlHttp.status == 200;
-        ditance = xmlHttp.status == 200 && xmlhttp.responseText != 0 ? xmlhttp.responseText + " cm": '-';
+        distance = xmlHttp.status == 200 && xmlHttp.responseText != 0 ? xmlHttp.responseText + " cm": '-';
         document.getElementById("distance").innerHTML = distance;
       };
       xmlHttp.send(null);
