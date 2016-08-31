@@ -53,7 +53,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
       cap.set(4, 200)
       HTTPHandler.train = True
       while cap.isOpened() and HTTPHandler.train:
-        if int(HTTPHandler.left) > 30 and int(HTTPHandler.right) > 30:
+        if int(HTTPHandler.left) > 20 and int(HTTPHandler.right) > 20:
           ret, frame = cap.read()
           gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
           print "frame: ", count, int(HTTPHandler.left), int(HTTPHandler.right)
