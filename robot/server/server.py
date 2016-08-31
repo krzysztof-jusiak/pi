@@ -3,9 +3,7 @@ from time import sleep
 from subprocess import call
 import SocketServer
 import RPi.GPIO as GPIO
-import sys
-import os
-import time
+import sys, os, time, cv2, threading
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -43,6 +41,26 @@ GPIO.setup(SONAR_ECHO, GPIO.IN)
 class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
     led = False
+    train = False
+    train_thread = None
+    left = 0
+    right = 0
+    
+    def train(self):
+      cap = cv2.VideoCapture(0)
+      count = 0
+      cap.set(3, 320)
+      cap.set(4, 200)
+      HTTPHandler.train = True
+      while cap.isOpened() and HTTPHandler.train:
+        if int(HTTPHandler.left) > 50 and int(HTTPHandler.right) > 50:
+          ret, frame = cap.read()
+          gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+          print "frame: ", count, int(HTTPHandler.left), int(HTTPHandler.right)
+          cv2.imwrite("frame_{count:04d}_{left:03d}_{right:03d}.jpg".format(count=count, left=int(HTTPHandler.left), right=int(HTTPHandler.right)), gray)
+          count = count + 1
+      cap.release()
+
     def do_GET(self):
         if self.path == "/":
           self.send_response(200)
@@ -58,7 +76,16 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.end_headers()
           with open(os.getcwd() + self.path) as f: self.wfile.write(f.read())
 
-        if self.path.startswith("/frames"):
+        elif self.path.startswith("/train"):
+          print "training..."
+          train_thread = threading.Thread(target=self.train)
+          train_thread.start()
+
+        elif self.path.startswith("/stop"):
+          HTTPHandler.train = False
+          train_thread.join()
+
+        elif self.path.startswith("/frames"):
           HTTPHandler.frames = int(self.path.split(':')[1])
           print "frames: " + str(HTTPHandler.frames)
 
@@ -92,34 +119,34 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.wfile.close()
 
         elif self.path.startswith("/forward"):
-          left = self.path.split(':')[1]
-          right = self.path.split(':')[2]
-          print "forward: " + left + ":" + right
+          HTTPHandler.left = self.path.split(':')[1]
+          HTTPHandler.right = self.path.split(':')[2]
+          print "forward: " + HTTPHandler.left + ":" + HTTPHandler.right
 
           #engine left
           GPIO.output(Motor1A, GPIO.LOW)
           GPIO.output(Motor1B, GPIO.HIGH)
-          e1.ChangeDutyCycle(int(left))
+          e1.ChangeDutyCycle(int(HTTPHandler.left))
 
           #engine right
           GPIO.output(Motor2A, GPIO.LOW)
           GPIO.output(Motor2B, GPIO.HIGH)
-          e2.ChangeDutyCycle(int(right))
+          e2.ChangeDutyCycle(int(HTTPHandler.right))
 
         elif self.path.startswith("/reverse"):
-          left = self.path.split(':')[1]
-          right = self.path.split(':')[2]
-          print "reverse: " + left + ":" + right
+          HTTPHandler.left = self.path.split(':')[1]
+          HTTPHandler.right = self.path.split(':')[2]
+          print "reverse: " + HTTPHandler.left + ":" + HTTPHandler.right
 
           #engine left
           GPIO.output(Motor1A, GPIO.HIGH)
           GPIO.output(Motor1B, GPIO.LOW)
-          e1.ChangeDutyCycle(int(left))
+          e1.ChangeDutyCycle(int(HTTPHandler.left))
 
           #engine right
           GPIO.output(Motor2A, GPIO.HIGH)
           GPIO.output(Motor2B, GPIO.LOW)
-          e2.ChangeDutyCycle(int(right))
+          e2.ChangeDutyCycle(int(HTTPHandler.right))
 
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]
@@ -148,3 +175,4 @@ except:
     GPIO.output(Motor2E, GPIO.LOW)
     GPIO.cleanup()
     call("pkill -9 mjpg_streamer", shell=True)
+
