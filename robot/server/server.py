@@ -49,15 +49,15 @@ class HTTPHandler(BaseHTTPRequestHandler):
     def train(self):
       cap = cv2.VideoCapture(0)
       count = 0
-      cap.set(3, 320)
-      cap.set(4, 200)
+      cap.set(3, 80)
+      cap.set(4, 50)
       HTTPHandler.train = True
       while cap.isOpened() and HTTPHandler.train:
-        if int(HTTPHandler.left) > 20 and int(HTTPHandler.right) > 20:
+        if int(HTTPHandler.left) > 40 and int(HTTPHandler.right) > 40:
           ret, frame = cap.read()
           gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
           print "frame: ", count, int(HTTPHandler.left), int(HTTPHandler.right)
-          cv2.imwrite("frame_{count:04d}_{left:03d}_{right:03d}.jpg".format(count=count, left=int(HTTPHandler.left), right=int(HTTPHandler.right)), gray)
+          cv2.imwrite("frame_{count:04d}_{left:03d}_{right:03d}.png".format(count=count, left=int(HTTPHandler.left), right=int(HTTPHandler.right)), gray)
           count = count + 1
       cap.release()
 
