@@ -4,6 +4,14 @@ from subprocess import call
 import SocketServer
 import RPi.GPIO as GPIO
 import sys, os, time, cv2, threading
+from pybrain.datasets import SupervisedDataSet
+from pybrain.datasets import UnsupervisedDataSet
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.tools.xml.networkwriter import NetworkWriter
+from pybrain.tools.xml.networkreader import NetworkReader
+from pybrain.supervised import BackpropTrainer
+from random import shuffle
+import numpy as np
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -37,6 +45,9 @@ SONAR_TRIGGER = 31 #GB6
 SONAR_ECHO = 29 #GB5
 GPIO.setup(SONAR_TRIGGER, GPIO.OUT)
 GPIO.setup(SONAR_ECHO, GPIO.IN)
+
+SIZE=80*50
+OUTPUT=2
 
 class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
@@ -85,6 +96,29 @@ class HTTPHandler(BaseHTTPRequestHandler):
           HTTPHandler.train = False
           train_thread.join()
 
+        elif self.path.startswith("/run"):
+          network = NetworkReader.readFrom('net.xml')
+          cap = cv2.VideoCapture(0)
+          cap.set(3, 80)
+          cap.set(4, 50)
+          while cap.isOpened():
+            ret, frame = cap.read()
+            array = frame.reshape(1, SIZE).astype(np.float32)
+            dataset = UnsupervisedDataSet(SIZE)
+            active = network.activateOnDataset(dataset)[0]
+            HTTPHandler.left = 70 if active[0] > 0.7 else 50
+            HTTPHandler.right = 70 if active[1] > 0.7 else 50
+
+            #engine left
+            GPIO.output(Motor1A, GPIO.LOW)
+            GPIO.output(Motor1B, GPIO.HIGH)
+            e1.ChangeDutyCycle(HTTPHandler.left)
+
+            #engine right
+            GPIO.output(Motor2A, GPIO.LOW)
+            GPIO.output(Motor2B, GPIO.HIGH)
+            e2.ChangeDutyCycle(HTTPHandler.right)
+
         elif self.path.startswith("/frames"):
           HTTPHandler.frames = int(self.path.split(':')[1])
           print "frames: " + str(HTTPHandler.frames)
@@ -120,7 +154,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
         elif self.path.startswith("/forward"):
           HTTPHandler.left = max(0, int(self.path.split(':')[1]))
-          HTTPHandler.right = max(0, int(self.path.split(':')[2]) - 3)
+          HTTPHandler.right = max(0, int(self.path.split(':')[2]))
           print "forward: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
           #engine left

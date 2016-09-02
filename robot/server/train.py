@@ -16,34 +16,36 @@ OUTPUT=2
 
 def make_dataset():
     print "prepare data..."
-    data = SupervisedDataSet(SIZE, OUTPUT)
+    data = []
     for file in os.listdir("data"):
         if file.endswith(".png"):
             left = int(file.split('_')[2])
             right = int(file.split('_')[3].split('.')[0])
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
             array = image.reshape(1, SIZE).astype(np.float32)
-#            left_value = 2 if left >= 60 else 1 if left >= 40 and left < 60 else 0
-#            right_value = 2 if right >= 60 else 1 if right >= 40 and right < 60 else 0
-            if abs(left -right) > 15:
+            if abs(left -right) >= 15:
               left_value = 1 if left > right else 0
               right_value = 1 if right > left else 0
             else:
               left_value = 1
               right_value = 1
-
-            data.addSample(array, [left_value, right_value])
-#            print file, abs(left - right), left_value, right_value
-    return data
-
+            data.append([array, left_value, right_value])
+    shuffle(data)
+    data_set = SupervisedDataSet(SIZE, OUTPUT)
+    for d in data:
+      data_set.addSample(d[0][0], [d[1], d[2]])
+    return data_set
 
 def training(d):
     print "train..."
     n = buildNetwork(d.indim, 16, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.01, momentum = 0, verbose = True)
-    for epoch in range(0, 100):
-      if t.train() < 0.01:
-        pass
+    try:
+      for epoch in range(0, 1000):
+        if t.train() < 0.01:
+          pass
+    except:
+        return n
     return n
 
 def test(network):
@@ -58,7 +60,7 @@ def test(network):
           left = int(file.split('_')[2])
           right = int(file.split('_')[3].split('.')[0])
           active = network.activateOnDataset(dataset)[0]
-          if abs(left -right) > 15:
+          if abs(left -right) >= 15:
             left_value = 1 if left > right else 0
             right_value = 1 if right > left else 0
           else:
@@ -72,8 +74,8 @@ def test(network):
           c = c + 1
     print c, ok, (ok*1.0/c) * 100.0
 
-trainingdata = make_dataset()
-network = training(trainingdata)
-NetworkWriter.writeToFile(network, 'net.xml')
+#trainingdata = make_dataset()
+#network = training(trainingdata)
+#NetworkWriter.writeToFile(network, 'net.xml')
 network = NetworkReader.readFrom('net.xml')
 test(network)
