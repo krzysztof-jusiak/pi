@@ -119,8 +119,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.wfile.close()
 
         elif self.path.startswith("/forward"):
-          HTTPHandler.left = max(0, int(self.path.split(':')[1]) - 15)
-          HTTPHandler.right = max(0, int(self.path.split(':')[2]))
+          HTTPHandler.left = max(0, int(self.path.split(':')[1]))
+          HTTPHandler.right = max(0, int(self.path.split(':')[2]) - 15)
           print "forward: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
           #engine left
