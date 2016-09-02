@@ -53,11 +53,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
       cap.set(4, 50)
       HTTPHandler.train = True
       while cap.isOpened() and HTTPHandler.train:
-        if int(HTTPHandler.left) > 40 and int(HTTPHandler.right) > 40:
+        if HTTPHandler.left > 40 and HTTPHandler.right > 40:
           ret, frame = cap.read()
           gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-          print "frame: ", count, int(HTTPHandler.left), int(HTTPHandler.right)
-          cv2.imwrite("frame_{count:04d}_{left:03d}_{right:03d}.png".format(count=count, left=int(HTTPHandler.left), right=int(HTTPHandler.right)), gray)
+          print "frame: ", count, HTTPHandler.left, HTTPHandler.right
+          cv2.imwrite("frame_{count:04d}_{left:03d}_{right:03d}.png".format(count=count, left=HTTPHandler.left, right=HTTPHandler.right), gray)
           count = count + 1
       cap.release()
 
@@ -119,34 +119,34 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.wfile.close()
 
         elif self.path.startswith("/forward"):
-          HTTPHandler.left = self.path.split(':')[1]
-          HTTPHandler.right = self.path.split(':')[2]
-          print "forward: " + HTTPHandler.left + ":" + HTTPHandler.right
+          HTTPHandler.left = int(self.path.split(':')[1]) - 15
+          HTTPHandler.right = int(self.path.split(':')[2])
+          print "forward: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
           #engine left
           GPIO.output(Motor1A, GPIO.LOW)
           GPIO.output(Motor1B, GPIO.HIGH)
-          e1.ChangeDutyCycle(int(HTTPHandler.left))
+          e1.ChangeDutyCycle(HTTPHandler.left)
 
           #engine right
           GPIO.output(Motor2A, GPIO.LOW)
           GPIO.output(Motor2B, GPIO.HIGH)
-          e2.ChangeDutyCycle(int(HTTPHandler.right))
+          e2.ChangeDutyCycle(HTTPHandler.right)
 
         elif self.path.startswith("/reverse"):
-          HTTPHandler.left = self.path.split(':')[1]
-          HTTPHandler.right = self.path.split(':')[2]
-          print "reverse: " + HTTPHandler.left + ":" + HTTPHandler.right
+          HTTPHandler.left = int(self.path.split(':')[1])
+          HTTPHandler.right = int(self.path.split(':')[2])
+          print "reverse: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
           #engine left
           GPIO.output(Motor1A, GPIO.HIGH)
           GPIO.output(Motor1B, GPIO.LOW)
-          e1.ChangeDutyCycle(int(HTTPHandler.left))
+          e1.ChangeDutyCycle(HTTPHandler.left)
 
           #engine right
           GPIO.output(Motor2A, GPIO.HIGH)
           GPIO.output(Motor2B, GPIO.LOW)
-          e2.ChangeDutyCycle(int(HTTPHandler.right))
+          e2.ChangeDutyCycle(HTTPHandler.right)
 
         elif self.path.startswith("/camera"):
           status = self.path.split(':')[1]

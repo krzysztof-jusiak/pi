@@ -6,6 +6,7 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.supervised import BackpropTrainer
+from random import shuffle
 import numpy as np
 import cv2
 import os
@@ -38,7 +39,7 @@ def make_dataset():
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 16, d.outdim, recurrent=True)
+    n = buildNetwork(d.indim, 16, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.01, momentum = 0, verbose = True)
     for epoch in range(0, 100):
       if t.train() < 0.01:
