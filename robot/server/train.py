@@ -19,15 +19,10 @@ def make_dataset():
     data = []
     for file in os.listdir("data"):
         if file.endswith(".png"):
-            left = int(file.split('_')[2])
-            right = int(file.split('_')[3].split('.')[0])
+            left = int(file.split('_')[2]) / 10
+            right = int(file.split('_')[3].split('.')[0]) / 10
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
             array = image.reshape(1, SIZE).astype(np.float32)
-            if abs(left - right) >= 15:
-              left = 1 if left > right else 0
-              right = 1 if right > left else 0
-            else:
-              left = right = 1
             data.append([array, left, right])
     shuffle(data)
     data_set = SupervisedDataSet(SIZE, OUTPUT)
@@ -37,8 +32,8 @@ def make_dataset():
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 32, d.outdim, recurrent=True, bias=True)
-    t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0.0)
+    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
+    t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0)
     try:
       for epoch in range(0, 100):
         print t.train()
@@ -60,7 +55,7 @@ def test(network):
           active = network.activateOnDataset(dataset)[0]
 #          active_left = 1 if active[0] > 0.9 else 0
 #          active_right = 1 if active[1] > 0.9 else 0
-          print left, right, active[0], active[1]
+          print left, right, active
 #          print file, [lef, active_left, active[0]], [right_value, active_right, active[1]], (left_value == active_left and right_value == active_right)
 #          ok += (left_value == active_left and right_value == active_right)
 #          c = c + 1
