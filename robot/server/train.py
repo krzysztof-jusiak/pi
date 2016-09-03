@@ -26,13 +26,30 @@ def make_dataset():
             data.append([array, left, right])
     shuffle(data)
     data_set = SupervisedDataSet(SIZE, OUTPUT)
+
+    avg = 0
+    count = 0
+    for d in data:
+      if abs(d[1] - d[2]) < 10:
+        count += 2
+        avg += d[1] + d[2]
+        d[1] = 1 
+        d[2] = 1 
+      elif d[1] > d[2]:
+        d[1] = 1
+        d[2] = 0
+      elif d[2] > d[1]:
+        d[1] = 0
+        d[2] = 1
+
     for d in data:
       data_set.addSample(d[0][0], [d[1], d[2]])
+
     return data_set
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 128, d.outdim, recurrent=True, bias=True)
+    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0)
     try:
       for epoch in range(0, 100):
