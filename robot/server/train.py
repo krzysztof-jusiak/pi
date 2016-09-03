@@ -19,8 +19,8 @@ def make_dataset():
     data = []
     for file in os.listdir("data"):
         if file.endswith(".png"):
-            left = int(file.split('_')[2]) / 10
-            right = int(file.split('_')[3].split('.')[0]) / 10
+            left = int(file.split('_')[2])
+            right = int(file.split('_')[3].split('.')[0])
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
             array = image.reshape(1, SIZE).astype(np.float32)
             data.append([array, left, right])
@@ -32,7 +32,7 @@ def make_dataset():
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
+    n = buildNetwork(d.indim, 128, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0)
     try:
       for epoch in range(0, 100):
