@@ -110,8 +110,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
             dataset = UnsupervisedDataSet(SIZE)
             dataset.addSample(array)
             active = network.activateOnDataset(dataset)[0]
-            HTTPHandler.left = int(active[0])
-            HTTPHandler.right = int(active[1])
+            HTTPHandler.left = min(100, max(0, int(active[0])))
+            HTTPHandler.right = min(100, max(0, int(active[1])))
 
             print "auto-forward: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
