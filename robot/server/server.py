@@ -58,7 +58,6 @@ class HTTPHandler(BaseHTTPRequestHandler):
     right = 0
     
     def train(self):
-      time.sleep(1)
       cap = cv2.VideoCapture(0)
       count = 0
       cap.set(3, 80)
@@ -98,7 +97,9 @@ class HTTPHandler(BaseHTTPRequestHandler):
           train_thread.join()
 
         elif self.path.startswith("/run"):
+          print "run"
           network = NetworkReader.readFrom('net.xml')
+          print "..."
           cap = cv2.VideoCapture(0)
           cap.set(3, 80)
           cap.set(4, 50)
@@ -107,8 +108,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
             array = frame.reshape(1, SIZE).astype(np.float32)
             dataset = UnsupervisedDataSet(SIZE)
             active = network.activateOnDataset(dataset)[0]
-            HTTPHandler.left = 70 if active[0] > 0.7 else 50
-            HTTPHandler.right = 70 if active[1] > 0.7 else 50
+            HTTPHandler.left = int(active[0])
+            HTTPHandler.right = int(active[1])
+
+            print "auto-forward: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
             #engine left
             GPIO.output(Motor1A, GPIO.LOW)
