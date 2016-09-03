@@ -105,7 +105,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           cap.set(4, 50)
           while cap.isOpened():
             ret, frame = cap.read()
-            array = frame.reshape(1, SIZE).astype(np.float32)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            array = gray.reshape(1, SIZE).astype(np.float32)
             dataset = UnsupervisedDataSet(SIZE)
             active = network.activateOnDataset(dataset)[0]
             HTTPHandler.left = int(active[0])
