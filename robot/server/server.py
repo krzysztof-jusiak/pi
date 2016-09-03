@@ -58,6 +58,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
     right = 0
     
     def train(self):
+      time.sleep(1)
       cap = cv2.VideoCapture(0)
       count = 0
       cap.set(3, 80)

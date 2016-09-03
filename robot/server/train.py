@@ -23,13 +23,7 @@ def make_dataset():
             right = int(file.split('_')[3].split('.')[0])
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
             array = image.reshape(1, SIZE).astype(np.float32)
-            if abs(left -right) >= 15:
-              left_value = 1 if left > right else 0
-              right_value = 1 if right > left else 0
-            else:
-              left_value = 1
-              right_value = 1
-            data.append([array, left_value, right_value])
+            data.append([array, left, right])
     shuffle(data)
     data_set = SupervisedDataSet(SIZE, OUTPUT)
     for d in data:
@@ -38,12 +32,11 @@ def make_dataset():
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 16, d.outdim, recurrent=True, bias=True)
-    t = BackpropTrainer(n, d, learningrate = 0.01, momentum = 0, verbose = True)
+    n = buildNetwork(d.indim, 128, d.outdim, recurrent=True, bias=True)
+    t = BackpropTrainer(n, d, learningrate = 0.0001, momentum = 0.0)
     try:
       for epoch in range(0, 1000):
-        if t.train() < 0.01:
-          pass
+        print t.train()
     except:
         return n
     return n
@@ -56,26 +49,20 @@ def test(network):
           image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
           array = image.reshape(1, SIZE).astype(np.float32)
           dataset = UnsupervisedDataSet(SIZE)
-          dataset.addSample(array)  
+          dataset.addSample(array)
           left = int(file.split('_')[2])
           right = int(file.split('_')[3].split('.')[0])
           active = network.activateOnDataset(dataset)[0]
-          if abs(left -right) >= 15:
-            left_value = 1 if left > right else 0
-            right_value = 1 if right > left else 0
-          else:
-            left_value = 1
-            right_value = 1
+#          active_left = 1 if active[0] > 0.9 else 0
+#          active_right = 1 if active[1] > 0.9 else 0
+          print left, right, active
+#          print file, [lef, active_left, active[0]], [right_value, active_right, active[1]], (left_value == active_left and right_value == active_right)
+#          ok += (left_value == active_left and right_value == active_right)
+#          c = c + 1
+#    print c, ok, (ok*1.0/c) * 100.0
 
-          active_left = 1 if active[0] > 0.7 else 0
-          active_right = 1 if active[1] > 0.7 else 0
-          print file, [left_value, active_left, active[0]], [right_value, active_right, active[1]], (left_value == active_left and right_value == active_right)
-          ok += (left_value == active_left and right_value == active_right)
-          c = c + 1
-    print c, ok, (ok*1.0/c) * 100.0
-
-#trainingdata = make_dataset()
-#network = training(trainingdata)
-#NetworkWriter.writeToFile(network, 'net.xml')
+trainingdata = make_dataset()
+network = training(trainingdata)
+NetworkWriter.writeToFile(network, 'net.xml')
 network = NetworkReader.readFrom('net.xml')
 test(network)
