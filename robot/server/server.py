@@ -111,8 +111,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
             dataset = UnsupervisedDataSet(SIZE)
             dataset.addSample(array)
             active = network.activateOnDataset(dataset)[0]
-            HTTPHandler.left = 95 if active[0] > 0.7 else 55
-            HTTPHandler.right = 95 if active[1] > 0.7 else 55
+            HTTPHandler.left = 85 if active[1] > 0.7 else 50
+            HTTPHandler.right = 85 if active[0] > 0.7 else 50
 #            HTTPHandler.left = min(100, max(0, int(active[0])))
 #            HTTPHandler.right = min(100, max(0, int(active[1])))
 
