@@ -64,6 +64,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
       cap.set(4, 50)
       HTTPHandler.train = True
       while cap.isOpened() and HTTPHandler.train:
+        time.sleep(0.2)
         if HTTPHandler.left > 40 and HTTPHandler.right > 40:
           ret, frame = cap.read()
           gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -89,12 +90,12 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
         elif self.path.startswith("/train"):
           print "training..."
-          train_thread = threading.Thread(target=self.train)
-          train_thread.start()
+          HTTPHandler.train_thread = threading.Thread(target=self.train)
+          HTTPHandler.train_thread.start()
 
         elif self.path.startswith("/stop"):
           HTTPHandler.train = False
-          train_thread.join()
+          HTTPHandler.train_thread.join()
 
         elif self.path.startswith("/run"):
           print "run"
