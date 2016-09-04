@@ -24,27 +24,27 @@ def make_dataset():
             right = int(file.split('_')[3].split('.')[0])
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
             array = image.reshape(1, SIZE).astype(np.float32)
-#            if frame <= 630:
-#              left = 1
-#              right = 0
-#            elif frame > 630 and frame <= 1671:
-#              left = 0
-#              right = 1
-#            else:
-#              left = 1
-#              right = 1
+            if frame <= 150:
+              left = 1
+              right = 0
+            elif frame >= 169 and frame <= 329:
+              left = 0
+              right = 1
+            else:
+              left = 1
+              right = 1
             data.append([array, left, right])
     shuffle(data)
     data_set = SupervisedDataSet(SIZE, OUTPUT)
-    for d in data:
-      if abs(d[1] - d[2]) < 5:
-        d[1] = d[2] = 1
-      elif (d[1] > d[2]):
-        d[1] = 1
-        d[2] = 0
-      else:
-        d[1] = 0
-        d[2] = 1
+#    for d in data:
+#      if abs(d[1] - d[2]) < 5:
+#        d[1] = d[2] = 1
+#      elif (d[1] > d[2]):
+#        d[1] = 1
+#        d[2] = 0
+#      else:
+#        d[1] = 0
+#        d[2] = 1
 
     for d in data:
       data_set.addSample(d[0][0], [d[1], d[2]])
