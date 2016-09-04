@@ -54,7 +54,7 @@ def make_dataset():
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True, fast=True)
+    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0.0)
     try:
       for epoch in range(0, 1000):
