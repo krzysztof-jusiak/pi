@@ -3,10 +3,11 @@ sys.path.append('/usr/local/lib/python2.7/site-packages')
 from pybrain.datasets import SupervisedDataSet
 from pybrain.datasets import UnsupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
-from pybrain.tools.xml.networkwriter import NetworkWriter
-from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.supervised import BackpropTrainer
+from pybrain.tools.shortcuts import buildNetwork
 from random import shuffle
+from time import time
+import pickle
 import numpy as np
 import cv2
 import os
@@ -53,7 +54,7 @@ def make_dataset():
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
+    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True, fast=True)
     t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0.0)
     try:
       for epoch in range(0, 1000):
@@ -85,6 +86,13 @@ def test(network):
 
 trainingdata = make_dataset()
 network = training(trainingdata)
-NetworkWriter.writeToFile(network, 'net.xml')
-network = NetworkReader.readFrom('net.xml')
+
+fileObject = open('net.obj', 'w')
+pickle.dump(network, fileObject)
+fileObject.close()
+
+fileObject = open('net.obj','r')
+network = pickle.load(fileObject)
+fileObject.close()
+
 test(network)

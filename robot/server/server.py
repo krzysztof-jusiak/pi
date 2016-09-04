@@ -7,11 +7,10 @@ import sys, os, time, cv2, threading
 from pybrain.datasets import SupervisedDataSet
 from pybrain.datasets import UnsupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
-from pybrain.tools.xml.networkwriter import NetworkWriter
-from pybrain.tools.xml.networkreader import NetworkReader
 from pybrain.supervised import BackpropTrainer
 from random import shuffle
 import numpy as np
+import pickle
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -99,7 +98,9 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
         elif self.path.startswith("/run"):
           print "run"
-          network = NetworkReader.readFrom('net.xml')
+          fileObject = open('net.obj','r')
+          network = pickle.load(fileObject)
+          fileObject.close()
           print "..."
           cap = cv2.VideoCapture(0)
           cap.set(3, 80)
