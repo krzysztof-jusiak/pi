@@ -37,6 +37,16 @@ def make_dataset():
     shuffle(data)
     data_set = SupervisedDataSet(SIZE, OUTPUT)
     for d in data:
+      if abs(d[1] - d[2]) < 5:
+        d[1] = d[2] = 1
+      elif (d[1] > d[2]):
+        d[1] = 1
+        d[2] = 0
+      else:
+        d[1] = 0
+        d[2] = 1
+
+    for d in data:
       data_set.addSample(d[0][0], [d[1], d[2]])
 
     return data_set
