@@ -21,19 +21,19 @@ def make_dataset():
     for file in sorted(os.listdir("data")):
         if file.endswith(".png"):
             frame = int(file.split('_')[1])
-            left = int(file.split('_')[2])
-            right = int(file.split('_')[3].split('.')[0])
+            left = int(file.split('_')[2]) / 10
+            right = int(file.split('_')[3].split('.')[0]) / 10
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
             array = image.reshape(1, SIZE).astype(np.float32)
-            if frame <= 150:
-              left = 1
-              right = 0
-            elif frame >= 169 and frame <= 329:
-              left = 0
-              right = 1
-            else:
-              left = 1
-              right = 1
+#            if frame <= 150:
+#              left = 1
+#              right = 0
+#            elif frame >= 169 and frame <= 329:
+#              left = 0
+#              right = 1
+#            else:
+#              left = 1
+#              right = 1
             data.append([array, left, right])
     shuffle(data)
     data_set = SupervisedDataSet(SIZE, OUTPUT)
@@ -48,16 +48,17 @@ def make_dataset():
 #        d[2] = 1
 
     for d in data:
+      print d[1], d[2]
       data_set.addSample(d[0][0], [d[1], d[2]])
 
     return data_set
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
+    n = buildNetwork(d.indim, 32, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0.0)
     try:
-      for epoch in range(0, 1000):
+      for epoch in range(0, 100):
         print t.train()
     except:
         return n
