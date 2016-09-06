@@ -57,7 +57,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
     train_thread = None
     left = 0
     right = 0
-    distance = -1
+    measure = -1
+    distance = 0
 
     def train(self):
       cap = cv2.VideoCapture(0)
@@ -113,27 +114,32 @@ class HTTPHandler(BaseHTTPRequestHandler):
           cap.set(4, 50)
           while cap.isOpened():
             ret, frame = cap.read()
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            array = gray.reshape(1, SIZE).astype(np.float32)
-            dataset = UnsupervisedDataSet(SIZE)
-            dataset.addSample(array)
-            active = network.activateOnDataset(dataset)[0]
-            HTTPHandler.left = 85 if active[1] > 0.7 else 50
-            HTTPHandler.right = 85 if active[0] > 0.7 else 50
+
+            if HTTPHandler.distance >= 20: #cm
+              gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+              array = gray.reshape(1, SIZE).astype(np.float32)
+              dataset = UnsupervisedDataSet(SIZE)
+              dataset.addSample(array)
+              active = network.activateOnDataset(dataset)[0]
+              HTTPHandler.left = 85 if active[1] > 0.7 else 50
+              HTTPHandler.right = 85 if active[0] > 0.7 else 50
 #            HTTPHandler.left = min(100, max(0, int(active[0])))
 #            HTTPHandler.right = min(100, max(0, int(active[1])))
+            else:
+              HTTPHandler.left = 0
+              HTTPHandler.right = 0
 
-            print "auto: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
+              print "auto: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
-            #engine left
-            GPIO.output(Motor1A, GPIO.LOW)
-            GPIO.output(Motor1B, GPIO.HIGH)
-            e1.ChangeDutyCycle(HTTPHandler.left)
+              #engine left
+              GPIO.output(Motor1A, GPIO.LOW)
+              GPIO.output(Motor1B, GPIO.HIGH)
+              e1.ChangeDutyCycle(HTTPHandler.left)
 
-            #engine right
-            GPIO.output(Motor2A, GPIO.LOW)
-            GPIO.output(Motor2B, GPIO.HIGH)
-            e2.ChangeDutyCycle(HTTPHandler.right)
+              #engine right
+              GPIO.output(Motor2A, GPIO.LOW)
+              GPIO.output(Motor2B, GPIO.HIGH)
+              e2.ChangeDutyCycle(HTTPHandler.right)
 
             result, jpg = cv2.imencode('.jpg', gray ,[int(cv2.IMWRITE_JPEG_QUALITY), 90])
             assert result
@@ -144,8 +150,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(jpg)
 
         elif self.path.startswith("/ping"):
-          if HTTPHandler.distance == -1:
-            HTTPHandler.distance = 0
+          if HTTPHandler.measure == -1:
+            HTTPHandler.measure = 0
             GPIO.output(SONAR_TRIGGER, GPIO.HIGH)
             time.sleep(0.00001)
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
@@ -156,11 +162,13 @@ class HTTPHandler(BaseHTTPRequestHandler):
             pulse_end = time.time()
 
             pulse_duration = pulse_end - pulse_start
-            HTTPHandler.distance = pulse_duration * 17150
-            HTTPHandler.distance = round(distance, 2)
+            HTTPHandler.measure = pulse_duration * 17150
+            HTTPHandler.measure = round(HTTPHandler.measure, 2)
 
-            if HTTPHandler.distance < 2 or HTTPHandler.distance > 400:
-              HTTPHandler.distance = 0
+            if HTTPHandler.measure < 2 or HTTPHandler.measure > 400:
+              HTTPHandler.measure = 0
+
+            HTTPHandler.distance = HTTPHandler.measure
 
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
@@ -170,9 +178,9 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(str(HTTPHandler.distance))
+            self.wfile.write(str(HTTPHandler.measure))
             self.wfile.close()
-            HTTPHandler.distance = -1
+            HTTPHandler.measure = -1
 
         elif self.path.startswith("/forward"):
           HTTPHandler.left = max(0, int(self.path.split(':')[1]))
