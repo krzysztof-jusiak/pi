@@ -194,6 +194,7 @@
 
       if (elem.style.opacity == 1.0) {
         document.getElementById('camera').style.opacity = 0.5;
+        document.getElementById('stream').src = url + "/auto:on";
         clearTimeout(cameraTimeout);
         localStorage.setItem('auto_is_on', '');
         request(url + "/camera:off", true);
@@ -425,7 +426,7 @@
 
         if (localStorage.getItem('auto_is_on') != null) {
           document.getElementById('stream').style.display = 'block';
-          document.getElementById('stream').src = url + ":" + port + "/?action=stream";
+          document.getElementById('stream').src = url + "/auto:on";
           document.getElementById('auto').style.opacity = 1.0;
         } else {
           document.getElementById('auto').style.opacity = 0.5;
