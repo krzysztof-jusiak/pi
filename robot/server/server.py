@@ -101,7 +101,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           HTTPHandler.train_thread.join()
 
         elif self.path.startswith("/auto:on"):
-          self.send_response(200)
+          elf.send_response(200)
           self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
           self.end_headers()
           print "run"
@@ -114,9 +114,9 @@ class HTTPHandler(BaseHTTPRequestHandler):
           cap.set(4, 50)
           while cap.isOpened():
             ret, frame = cap.read()
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             if HTTPHandler.distance >= 20: #cm
-              gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
               array = gray.reshape(1, SIZE).astype(np.float32)
               dataset = UnsupervisedDataSet(SIZE)
               dataset.addSample(array)
@@ -141,13 +141,14 @@ class HTTPHandler(BaseHTTPRequestHandler):
               GPIO.output(Motor2B, GPIO.HIGH)
               e2.ChangeDutyCycle(HTTPHandler.right)
 
-            result, jpg = cv2.imencode('.jpg', gray ,[int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            result, buf = cv2.imencode('.jpg', gray, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
             assert result
             self.wfile.write("--jpgboundary")
             self.send_header('Content-type','image/jpeg')
-            self.send_header('Content-length',len(jpg))
+            self.send_header('Content-length', str(len(buf)))
             self.end_headers()
-            self.wfile.write(jpg)
+					  self.wfile.write(bytearray(buf))
+  					self.wfile.write('\r\n')
 
         elif self.path.startswith("/ping"):
           if HTTPHandler.measure == -1:
