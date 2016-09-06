@@ -48,14 +48,13 @@ def make_dataset():
 #        d[2] = 1
 
     for d in data:
-      print d[1], d[2]
       data_set.addSample(d[0][0], [d[1], d[2]])
 
     return data_set
 
 def training(d):
     print "train..."
-    n = buildNetwork(d.indim, 32, d.outdim, recurrent=True, bias=True)
+    n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0.0)
     try:
       for epoch in range(0, 100):

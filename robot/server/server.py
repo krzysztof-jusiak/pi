@@ -156,7 +156,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             time.sleep(0.00001)
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
 
-            GPIO.wait_for_edge(SONAR_ECHO, GPIO_RISING, timeout=500)
+            GPIO.wait_for_edge(SONAR_ECHO, GPIO.RISING, timeout=500)
             pulse_start = time.time()
             GPIO.wait_for_edge(SONAR_ECHO, GPIO.FALLING, timeout=500)
             pulse_end = time.time()
