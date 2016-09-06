@@ -147,8 +147,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type','image/jpeg')
             self.send_header('Content-length', str(len(buf)))
             self.end_headers()
-					  self.wfile.write(bytearray(buf))
-  					self.wfile.write('\r\n')
+            self.wfile.write(bytearray(buf))
+            self.wfile.write('\r\n')
 
         elif self.path.startswith("/ping"):
           if HTTPHandler.measure == -1:
