@@ -101,7 +101,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           HTTPHandler.train_thread.join()
 
         elif self.path.startswith("/auto:on"):
-          elf.send_response(200)
+          self.send_response(200)
           self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
           self.end_headers()
           print "run"
