@@ -67,6 +67,7 @@
   <input class="opacity_img" type="image" src="img/gas.png" id="accelerate" style="position:absolute; outline: none; right:5; bottom:110; border-radius:100%;" ontouchstart="acc_begin();" ontouchend="acc_end()" ontouchcancel="acc_end()" ontouchleave="acc_end()" />
   <input class="opacity_img" type="image" src="img/break.png" id="break" style="position:absolute; outline: none; right:5; bottom:5; border-radius:100%;" ontouchstart="stop();" />
   <input type="image" src="img/connection.png" id="connection" style="position:absolute; outline: none; width:25; height:25; left:10; bottom:10;" />
+  <input type="image" src="img/auto.png" id="auto" style="position:absolute; outline: none; width:50; height:50; right:174; top:30;" onclick="auto();" />
   <input type="image" src="img/camera.png" id="camera" style="position:absolute; outline: none; width:50; height:50; right:120; top:30;" onclick="camera();" />
   <input type="image" src="img/mode.png" id="mode" style="position:absolute; outline: none; width:50; height:50; right:67; top:30;" onclick="toggle_mode();" />
   <input class="opacity_img" type="image" src="img/refresh.png" id="refresh" style="position:absolute; outline: none; width:50; height:50; right:10; top:30;" ontouchstart="refresh();" onclick="refresh();" />
@@ -187,15 +188,35 @@
       window.location.reload();
     }
 
+    function auto() {
+      var elem = document.getElementById('auto');
+      elem.style.opacity = elem.style.opacity == 1.0 ? 0.5 : 1.0;
+
+      if (elem.style.opacity == 1.0) {
+        document.getElementById('camera').style.opacity = 0.5;
+        clearTimeout(cameraTimeout);
+        localStorage.setItem('auto_is_on', '');
+        request(url + "/camera:off", true);
+        request(url + "/auto:on", true);
+        localStorage.removeItem('camera_is_on');
+      } else {
+        request(url + "/auto:off", true);
+        localStorage.removeItem('auto_is_on');
+      }
+    }
+
     function camera() {
       var elem = document.getElementById('camera');
       elem.style.opacity = elem.style.opacity == 1.0 ? 0.5 : 1.0;
 
       if (elem.style.opacity == 1.0) {
         document.getElementById('stream').style.display = 'block';
+        document.getElementById('auto').style.opacity = 0.5;
         cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + port + "/?action=stream"; }, 1000);
         localStorage.setItem('camera_is_on', '');
+        request(url + "/auto:off", true);
         request(url + "/camera:on", true);
+        localStorage.removeItem('auto_is_on');
       } else {
         clearTimeout(cameraTimeout);
         document.getElementById('stream').style.display = 'none';
@@ -400,6 +421,14 @@
         } else {
           document.getElementById('camera').style.opacity = 0.5;
           request(url + "/camera:off", true);
+        }
+
+        if (localStorage.getItem('auto_is_on') != null) {
+          document.getElementById('stream').style.display = 'block';
+          document.getElementById('stream').src = url + ":" + port + "/?action=stream";
+          document.getElementById('auto').style.opacity = 1.0;
+        } else {
+          document.getElementById('auto').style.opacity = 0.5;
         }
 
         var tmp_mode = localStorage.getItem('mode', mode);

@@ -12,6 +12,8 @@ from random import shuffle
 import numpy as np
 import pickle
 
+GPIO.setwarnings(False)
+
 GPIO.setmode(GPIO.BOARD)
 
 Motor1A = 35 #GP19
@@ -55,7 +57,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
     train_thread = None
     left = 0
     right = 0
-    
+    distance = -1
+
     def train(self):
       cap = cv2.VideoCapture(0)
       count = 0
@@ -96,7 +99,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
           HTTPHandler.train = False
           HTTPHandler.train_thread.join()
 
-        elif self.path.startswith("/run"):
+        elif self.path.startswith("/auto:on"):
+          self.send_response(200)
+          self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
+          self.end_headers()
           print "run"
           fileObject = open('net.obj','r')
           network = pickle.load(fileObject)
@@ -117,7 +123,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
 #            HTTPHandler.left = min(100, max(0, int(active[0])))
 #            HTTPHandler.right = min(100, max(0, int(active[1])))
 
-            print "auto-forward: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
+            print "auto: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
             #engine left
             GPIO.output(Motor1A, GPIO.LOW)
@@ -129,38 +135,42 @@ class HTTPHandler(BaseHTTPRequestHandler):
             GPIO.output(Motor2B, GPIO.HIGH)
             e2.ChangeDutyCycle(HTTPHandler.right)
 
-        elif self.path.startswith("/frames"):
-          HTTPHandler.frames = int(self.path.split(':')[1])
-          print "frames: " + str(HTTPHandler.frames)
+            self.wfile.write("--jpgboundary")
+            self.send_header('Content-type','image/jpeg')
+            self.send_header('Content-length',len(gray))
+            self.end_headers()
+            self.wfile.write(gray)
 
         elif self.path.startswith("/ping"):
-          GPIO.output(SONAR_TRIGGER, GPIO.HIGH)
-          time.sleep(0.00001)
-          GPIO.output(SONAR_TRIGGER, GPIO.LOW)
+          if HTTPHandler.distance == -1:
+            HTTPHandler.distance = 0
+            GPIO.output(SONAR_TRIGGER, GPIO.HIGH)
+            time.sleep(0.00001)
+            GPIO.output(SONAR_TRIGGER, GPIO.LOW)
 
-          while GPIO.input(SONAR_ECHO) == GPIO.LOW:
+            GPIO.wait_for_edge(SONAR_ECHO, GPIO_RISING, timeout=500)
             pulse_start = time.time()
-
-          while GPIO.input(SONAR_ECHO) == GPIO.HIGH:
+            GPIO.wait_for_edge(SONAR_ECHO, GPIO.FALLING, timeout=500)
             pulse_end = time.time()
 
-          pulse_duration = pulse_end - pulse_start
-          distance = pulse_duration * 17150
-          distance = round(distance, 2)
+            pulse_duration = pulse_end - pulse_start
+            HTTPHandler.distance = pulse_duration * 17150
+            HTTPHandler.distance = round(distance, 2)
 
-          if distance < 2 or distance > 400:
-            distance = 0
+            if HTTPHandler.distance < 2 or HTTPHandler.distance > 400:
+              HTTPHandler.distance = 0
 
-          GPIO.output(SONAR_TRIGGER, GPIO.LOW)
-          GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
-          HTTPHandler.led^=True
+            GPIO.output(SONAR_TRIGGER, GPIO.LOW)
+            GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
+            HTTPHandler.led^=True
 
-          self.send_response(200)
-          self.send_header('Content-type', 'text/html')
-          self.send_header("Access-Control-Allow-Origin", "*")
-          self.end_headers()
-          self.wfile.write(str(distance))
-          self.wfile.close()
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(str(HTTPHandler.distance))
+            self.wfile.close()
+            HTTPHandler.distance = -1
 
         elif self.path.startswith("/forward"):
           HTTPHandler.left = max(0, int(self.path.split(':')[1]))
