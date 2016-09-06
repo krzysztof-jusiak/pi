@@ -135,11 +135,13 @@ class HTTPHandler(BaseHTTPRequestHandler):
             GPIO.output(Motor2B, GPIO.HIGH)
             e2.ChangeDutyCycle(HTTPHandler.right)
 
+            result, jpg = cv2.imencode('.jpg', gray ,[int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            assert result
             self.wfile.write("--jpgboundary")
             self.send_header('Content-type','image/jpeg')
-            self.send_header('Content-length',len(gray))
+            self.send_header('Content-length',len(jpg))
             self.end_headers()
-            self.wfile.write(gray)
+            self.wfile.write(jpg)
 
         elif self.path.startswith("/ping"):
           if HTTPHandler.distance == -1:
