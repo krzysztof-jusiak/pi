@@ -151,7 +151,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write('\r\n')
           cap.release()
 
-        elif self.path.startswith("/auto:ff"):
+        elif self.path.startswith("/auto:off"):
           HTTPHandler.auto = False
 
         elif self.path.startswith("/ping"):
@@ -177,7 +177,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
-            HTTPHandler.led^=True
+            HTTPHandler.led ^= True
 
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
