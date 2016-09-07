@@ -1,4 +1,5 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from SocketServer import ThreadingMixIn
 from time import sleep
 from subprocess import call
 import SocketServer
@@ -49,6 +50,9 @@ GPIO.setup(SONAR_ECHO, GPIO.IN)
 
 SIZE=80*50
 OUTPUT=2
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+  pass
 
 class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
@@ -226,7 +230,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           call("halt", shell=True)
 
 server_address = ('', 80)
-httpd = HTTPServer(server_address, HTTPHandler)
+httpd = ThreadedHTTPServer(server_address, HTTPHandler)
 
 try:
     GPIO.output(SONAR_TRIGGER, GPIO.LOW)
