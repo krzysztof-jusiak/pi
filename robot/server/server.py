@@ -58,27 +58,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
     frames = 30
     led = False
     train = False
-    train_thread = None
+    auto = False
     left = 0
     right = 0
     measure = -1
     distance = 0
-
-    def train(self):
-      cap = cv2.VideoCapture(0)
-      count = 0
-      cap.set(3, 80)
-      cap.set(4, 50)
-      HTTPHandler.train = True
-      while cap.isOpened() and HTTPHandler.train:
-        time.sleep(0.2)
-        if HTTPHandler.left > 40 and HTTPHandler.right > 40:
-          ret, frame = cap.read()
-          gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-          print "frame: ", count, HTTPHandler.left, HTTPHandler.right
-          cv2.imwrite("frame_{count:04d}_{left:03d}_{right:03d}.png".format(count=count, left=HTTPHandler.left, right=HTTPHandler.right), gray)
-          count = count + 1
-      cap.release()
 
     def do_GET(self):
         if self.path == "/":
@@ -95,14 +79,25 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.end_headers()
           with open(os.getcwd() + self.path) as f: self.wfile.write(f.read())
 
-        elif self.path.startswith("/train"):
+        elif self.path.startswith("/train:on"):
           print "training..."
-          HTTPHandler.train_thread = threading.Thread(target=self.train)
-          HTTPHandler.train_thread.start()
+          cap = cv2.VideoCapture(0)
+          count = 0
+          cap.set(3, 80)
+          cap.set(4, 50)
+          HTTPHandler.train = True
+          while cap.isOpened() and HTTPHandler.train:
+            time.sleep(0.2)
+            if HTTPHandler.left > 40 and HTTPHandler.right > 40:
+              ret, frame = cap.read()
+              gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+              print "frame: ", count, HTTPHandler.left, HTTPHandler.right
+              cv2.imwrite("frame_{count:04d}_{left:03d}_{right:03d}.png".format(count=count, left=HTTPHandler.left, right=HTTPHandler.right), gray)
+              count = count + 1
+          cap.release()
 
-        elif self.path.startswith("/stop"):
+        elif self.path.startswith("/train:off"):
           HTTPHandler.train = False
-          HTTPHandler.train_thread.join()
 
         elif self.path.startswith("/auto:on"):
           self.send_response(200)
@@ -116,7 +111,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           cap = cv2.VideoCapture(0)
           cap.set(3, 80)
           cap.set(4, 50)
-          while cap.isOpened():
+          HTTPHandler.auto = True
+          while cap.isOpened() and HTTPHandler.auto:
             ret, frame = cap.read()
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -153,6 +149,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytearray(buf))
             self.wfile.write('\r\n')
+          cap.release()
+
+        elif self.path.startswith("/auto:ff"):
+          HTTPHandler.auto = False
 
         elif self.path.startswith("/ping"):
           if HTTPHandler.measure == -1:
