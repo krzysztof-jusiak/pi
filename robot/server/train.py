@@ -24,6 +24,12 @@ def make_dataset():
             left = int(file.split('_')[2]) / 10
             right = int(file.split('_')[3].split('.')[0]) / 10
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
+            crop = image[25:,]
+            inverted = (255 - crop)
+            bw = cv2.threshold(inverted, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            img = cv2.Canny(bw,100,200)
+            cv2.imwrite("tmp/" + file, img)
+            
             array = image.reshape(1, SIZE).astype(np.float32)
 #            if frame <= 150:
 #              left = 1
@@ -85,14 +91,14 @@ def test(network):
 #    print c, ok, (ok*1.0/c) * 100.0
 
 trainingdata = make_dataset()
-network = training(trainingdata)
+#network = training(trainingdata)
+#
+#fileObject = open('net.obj', 'w')
+#pickle.dump(network, fileObject)
+#fileObject.close()
+#
+#fileObject = open('net.obj','r')
+#network = pickle.load(fileObject)
+#fileObject.close()
 
-fileObject = open('net.obj', 'w')
-pickle.dump(network, fileObject)
-fileObject.close()
-
-fileObject = open('net.obj','r')
-network = pickle.load(fileObject)
-fileObject.close()
-
-test(network)
+#test(network)
