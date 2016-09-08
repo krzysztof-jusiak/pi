@@ -132,14 +132,15 @@ class HTTPHandler(BaseHTTPRequestHandler):
             ret, frame = cap.read()
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+            crop = gray[25:,]
+            inverted = (255 - crop)
+            bw = cv2.threshold(inverted, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            array = img.reshape(1, SIZE/2).astype(np.float32)
+            dataset = UnsupervisedDataSet(SIZE/2)
+            dataset.addSample(array)
+            active = network.activateOnDataset(dataset)[0]
+
             if HTTPHandler.distance >= 20: #cm
-              crop = gray[25:,]
-              inverted = (255 - crop)
-              bw = cv2.threshold(inverted, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-              array = img.reshape(1, SIZE/2).astype(np.float32)
-              dataset = UnsupervisedDataSet(SIZE/2)
-              dataset.addSample(array)
-              active = network.activateOnDataset(dataset)[0]
               HTTPHandler.left = 85 if active[1] > 0.9 else 50
               HTTPHandler.right = 85 if active[0] > 0.9 else 50
 #            HTTPHandler.left = min(100, max(0, int(active[0])))
