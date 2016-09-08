@@ -141,7 +141,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
               GPIO.output(Motor2B, GPIO.HIGH)
               e2.ChangeDutyCycle(HTTPHandler.right)
 
-            result, buf = cv2.imencode('.jpg', gray, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            result, buf = cv2.imencode('.jpg', cv2.resize(gray, (640, 360)), [int(cv2.IMWRITE_JPEG_QUALITY), 90])
             assert result
             self.wfile.write("--jpgboundary")
             self.send_header('Content-type','image/jpeg')
