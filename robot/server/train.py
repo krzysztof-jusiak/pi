@@ -21,28 +21,43 @@ def make_dataset():
     for file in sorted(os.listdir("data")):
         if file.endswith(".png"):
             frame = int(file.split('_')[1])
-            left = int(file.split('_')[2]) / 10
-            right = int(file.split('_')[3].split('.')[0]) / 10
+            left = int(file.split('_')[2])
+            right = int(file.split('_')[3].split('.')[0])
             image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
             crop = image[25:,]
             inverted = (255 - crop)
             bw = cv2.threshold(inverted, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-            img = cv2.Canny(bw,100,200)
-            cv2.imwrite("tmp/" + file, img)
-            
-            array = image.reshape(1, SIZE).astype(np.float32)
-#            if frame <= 150:
-#              left = 1
-#              right = 0
-#            elif frame >= 169 and frame <= 329:
-#              left = 0
-#              right = 1
-#            else:
-#              left = 1
-#              right = 1
+            img = bw# cv2.Canny(bw,100,200)
+            array = img.reshape(1, SIZE/2).astype(np.float32)
+
+            steps_image = np.zeros((360, 640), np.uint8)
+            steps_image.fill(255)
+            steps_image[50+50:50+50+50,       50+25+25:80+25+25+50] = image
+            steps_image[50+50+25:50+25+50+25, 50+25+85+25:25+80+80+5+25+50] = crop
+            steps_image[50+50+25:50+25+50+25, 50+25+25+160+5+5:80+80+80+5+5+25+25+50] = inverted
+            steps_image[50+50+25:50+25+50+25, 50+25+25+240+5+5+5:80+80+80+80+5+5+5+25+25+50] = bw
+
+            cv2.putText(steps_image, "net: 'net.obj', error: 0.032", (100, 75), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+
+            l = [3, 2, 2, 1]
+            cv2.putText(steps_image, "activate: " + str(l), (100, 200), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+            cv2.putText(steps_image, "obstacle: " + str(12) + " cm", (100, 225), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+            cv2.putText(steps_image, "auto: " + str(left) + ", " + str(right), (100, 250), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+
+            cv2.imwrite("tmp/" + file, steps_image)
+            if frame <= 150:
+              left = 1
+              right = 0
+            elif frame >= 176 and frame <= 329:
+              left = 0
+              right = 1
+            else:
+              left = 1
+              right = 1
+
             data.append([array, left, right])
     shuffle(data)
-    data_set = SupervisedDataSet(SIZE, OUTPUT)
+    data_set = SupervisedDataSet(SIZE/2, OUTPUT)
 #    for d in data:
 #      if abs(d[1] - d[2]) < 5:
 #        d[1] = d[2] = 1
@@ -61,9 +76,9 @@ def make_dataset():
 def training(d):
     print "train..."
     n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
-    t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0.0)
+    t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0)
     try:
-      for epoch in range(0, 100):
+      for epoch in range(0, 1000):
         print t.train()
     except:
         return n
@@ -75,8 +90,12 @@ def test(network):
     for file in sorted(os.listdir("data")):
         if file.endswith(".png"):
           image = cv2.imread("data/" + file, cv2.IMREAD_GRAYSCALE)
-          array = image.reshape(1, SIZE).astype(np.float32)
-          dataset = UnsupervisedDataSet(SIZE)
+          crop = image[25:,]
+          inverted = (255 - crop)
+          bw = cv2.threshold(inverted, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+          img = bw#cv2.Canny(bw,100,200)
+          array = img.reshape(1, SIZE/2).astype(np.float32)
+          dataset = UnsupervisedDataSet(SIZE/2)
           dataset.addSample(array)
           frame = int(file.split('_')[1])
           left = int(file.split('_')[2])
@@ -96,7 +115,7 @@ trainingdata = make_dataset()
 #fileObject = open('net.obj', 'w')
 #pickle.dump(network, fileObject)
 #fileObject.close()
-#
+##
 #fileObject = open('net.obj','r')
 #network = pickle.load(fileObject)
 #fileObject.close()
