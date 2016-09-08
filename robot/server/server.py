@@ -118,6 +118,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           file = "net.obj"
           fileObject = open(file, 'r')
           network = pickle.load(fileObject)
+          error = 0.02;
           fileObject.close()
           print "..."
           cap = cv2.VideoCapture(0)
@@ -167,7 +168,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             steps_image[50+50+25:50+25+50+25, 50+25+85+25:25+80+80+5+25+50] = crop
             steps_image[50+50+25:50+25+50+25, 50+25+25+160+5+5:80+80+80+5+5+25+25+50] = inverted
             steps_image[50+50+25:50+25+50+25, 50+25+25+240+5+5+5:80+80+80+80+5+5+5+25+25+50] = bw
-            cv2.putText(steps_image, "net: '" + file + "', error: " + str(errror), (100, 75), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+            cv2.putText(steps_image, "net: '" + file + "', error: " + str(error), (100, 75), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
             cv2.putText(steps_image, "activate: " + str(active), (100, 200), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
             cv2.putText(steps_image, "obstacle: " + str(HTTPHandler.distance) + " cm", (100, 225), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
             cv2.putText(steps_image, "auto: " + str(HTTPHandler.left) + ", " + str(HTTPHandler.right), (100, 250), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
