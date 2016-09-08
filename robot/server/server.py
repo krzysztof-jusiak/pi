@@ -135,7 +135,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             crop = gray[25:,]
             inverted = (255 - crop)
             bw = cv2.threshold(inverted, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-            array = img.reshape(1, SIZE/2).astype(np.float32)
+            array = bw.reshape(1, SIZE/2).astype(np.float32)
             dataset = UnsupervisedDataSet(SIZE/2)
             dataset.addSample(array)
             active = network.activateOnDataset(dataset)[0]
