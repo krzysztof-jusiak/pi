@@ -64,7 +64,7 @@ def training(d):
     n = buildNetwork(d.indim, 64, d.outdim, recurrent=True, bias=True)
     t = BackpropTrainer(n, d, learningrate = 0.001, momentum = 0)
     try:
-      for epoch in range(0, 1000):
+      for epoch in range(0, 10000):
         print t.train()
     except:
         return n
