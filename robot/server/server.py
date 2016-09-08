@@ -162,7 +162,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
             steps_image = np.zeros((360, 640), np.uint8)
             steps_image.fill(255)
-            steps_image[50+50:50+50+50,       50+25+25:80+25+25+50] = image
+            steps_image[50+50:50+50+50,       50+25+25:80+25+25+50] = gray
             steps_image[50+50+25:50+25+50+25, 50+25+85+25:25+80+80+5+25+50] = crop
             steps_image[50+50+25:50+25+50+25, 50+25+25+160+5+5:80+80+80+5+5+25+25+50] = inverted
             steps_image[50+50+25:50+25+50+25, 50+25+25+240+5+5+5:80+80+80+80+5+5+5+25+25+50] = bw
