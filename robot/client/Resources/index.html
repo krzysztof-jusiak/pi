@@ -194,7 +194,7 @@
 
       if (elem.style.opacity == 1.0) {
         document.getElementById('camera').style.opacity = 0.5;
-        document.getElementById('stream').src = url + "/auto:on";
+        document.getElementById('stream').src = "dupa";//url + "/auto:on";
         clearTimeout(cameraTimeout);
         localStorage.setItem('auto_is_on', '');
         request(url + "/camera:off", true);
@@ -354,11 +354,22 @@
     }
 
     function call_command(value) {
+      if (value == "debug:on") {
+        document.getElementById("stream").addEventListener('click', iframeclick());
+      } else if (value = "debug:off") {
+        document.getElementById("stream").removeEventListener('click');
+      }
       request(url + "/" + value, true);
     }
 
     function hide_keyobard() {
       document.activeElement.blur();
+    }
+
+    function iframeclick() {
+      document.getElementById("stream").contentWindow.document.body.onclick = function() { 
+        request(url + "/debug:step", true);
+      }
     }
 
     function init() {

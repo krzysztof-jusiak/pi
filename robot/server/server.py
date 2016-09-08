@@ -59,6 +59,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
     led = False
     train = False
     auto = False
+    debug = False
+    debug_step = False
     left = 0
     right = 0
     measure = -1
@@ -99,6 +101,15 @@ class HTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/train:off"):
           HTTPHandler.train = False
 
+        elif self.path.startswith("/debug:on"):
+          HTTPHandler.debug = True
+          
+        elif self.path.startswith("/debug:off"):
+          HTTPHandler.debug = False
+
+        elif self.path.startswith("/debug:step"):
+          HTTPHandler.debug_step = True
+
         elif self.path.startswith("/auto:on"):
           self.send_response(200)
           self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
@@ -114,6 +125,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
           cap.set(4, 50)
           HTTPHandler.auto = True
           while cap.isOpened() and HTTPHandler.auto:
+            while HTTPHandler.debug and not HTTPHandler.debug_step:
+              time.sleep(0.1)
+            HTTPHandler.debug_step = False
+        
             ret, frame = cap.read()
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -125,8 +140,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
               dataset = UnsupervisedDataSet(SIZE/2)
               dataset.addSample(array)
               active = network.activateOnDataset(dataset)[0]
-              HTTPHandler.left = 85 if active[1] > 0.7 else 50
-              HTTPHandler.right = 85 if active[0] > 0.7 else 50
+              HTTPHandler.left = 85 if active[1] > 0.9 else 50
+              HTTPHandler.right = 85 if active[0] > 0.9 else 50
 #            HTTPHandler.left = min(100, max(0, int(active[0])))
 #            HTTPHandler.right = min(100, max(0, int(active[1])))
             else:
