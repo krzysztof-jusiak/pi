@@ -104,7 +104,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
           self.end_headers()
           print "run"
-          fileObject = open('net.obj','r')
+          file = "net.obj"
+          fileObject = open(file, 'r')
           network = pickle.load(fileObject)
           fileObject.close()
           print "..."
@@ -117,8 +118,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             if HTTPHandler.distance >= 20: #cm
-              array = gray.reshape(1, SIZE).astype(np.float32)
-              dataset = UnsupervisedDataSet(SIZE)
+              crop = gray[25:,]
+              inverted = (255 - crop)
+              bw = cv2.threshold(inverted, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+              array = img.reshape(1, SIZE/2).astype(np.float32)
+              dataset = UnsupervisedDataSet(SIZE/2)
               dataset.addSample(array)
               active = network.activateOnDataset(dataset)[0]
               HTTPHandler.left = 85 if active[1] > 0.7 else 50
@@ -141,8 +145,19 @@ class HTTPHandler(BaseHTTPRequestHandler):
               GPIO.output(Motor2B, GPIO.HIGH)
               e2.ChangeDutyCycle(HTTPHandler.right)
 
-            result, buf = cv2.imencode('.jpg', cv2.resize(gray, (640, 360)), [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            steps_image = np.zeros((360, 640), np.uint8)
+            steps_image.fill(255)
+            steps_image[50+50:50+50+50,       50+25+25:80+25+25+50] = image
+            steps_image[50+50+25:50+25+50+25, 50+25+85+25:25+80+80+5+25+50] = crop
+            steps_image[50+50+25:50+25+50+25, 50+25+25+160+5+5:80+80+80+5+5+25+25+50] = inverted
+            steps_image[50+50+25:50+25+50+25, 50+25+25+240+5+5+5:80+80+80+80+5+5+5+25+25+50] = bw
+            cv2.putText(steps_image, "net: '" + file + "', error: " + str(errror), (100, 75), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+            cv2.putText(steps_image, "activate: " + str(active), (100, 200), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+            cv2.putText(steps_image, "obstacle: " + str(HTTPHandler.distance) + " cm", (100, 225), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+            cv2.putText(steps_image, "auto: " + str(HTTPHandler.left) + ", " + str(HTTPHandler.right), (100, 250), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
+            result, buf = cv2.imencode('.jpg', steps_image, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
             assert result
+
             self.wfile.write("--jpgboundary")
             self.send_header('Content-type','image/jpeg')
             self.send_header('Content-length', str(len(buf)))

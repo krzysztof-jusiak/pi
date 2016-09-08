@@ -30,21 +30,7 @@ def make_dataset():
             img = bw# cv2.Canny(bw,100,200)
             array = img.reshape(1, SIZE/2).astype(np.float32)
 
-            steps_image = np.zeros((360, 640), np.uint8)
-            steps_image.fill(255)
-            steps_image[50+50:50+50+50,       50+25+25:80+25+25+50] = image
-            steps_image[50+50+25:50+25+50+25, 50+25+85+25:25+80+80+5+25+50] = crop
-            steps_image[50+50+25:50+25+50+25, 50+25+25+160+5+5:80+80+80+5+5+25+25+50] = inverted
-            steps_image[50+50+25:50+25+50+25, 50+25+25+240+5+5+5:80+80+80+80+5+5+5+25+25+50] = bw
-
-            cv2.putText(steps_image, "net: 'net.obj', error: 0.032", (100, 75), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
-
-            l = [3, 2, 2, 1]
-            cv2.putText(steps_image, "activate: " + str(l), (100, 200), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
-            cv2.putText(steps_image, "obstacle: " + str(12) + " cm", (100, 225), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
-            cv2.putText(steps_image, "auto: " + str(left) + ", " + str(right), (100, 250), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
-
-            cv2.imwrite("tmp/" + file, steps_image)
+            #cv2.imwrite("tmp/" + file, steps_image)
             if frame <= 150:
               left = 1
               right = 0
@@ -110,14 +96,14 @@ def test(network):
 #    print c, ok, (ok*1.0/c) * 100.0
 
 trainingdata = make_dataset()
-#network = training(trainingdata)
-#
-#fileObject = open('net.obj', 'w')
-#pickle.dump(network, fileObject)
-#fileObject.close()
-##
-#fileObject = open('net.obj','r')
-#network = pickle.load(fileObject)
-#fileObject.close()
+network = training(trainingdata)
 
-#test(network)
+fileObject = open('net.obj', 'w')
+pickle.dump(network, fileObject)
+fileObject.close()
+
+fileObject = open('net.obj','r')
+network = pickle.load(fileObject)
+fileObject.close()
+
+test(network)
