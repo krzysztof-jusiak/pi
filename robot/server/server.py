@@ -46,7 +46,7 @@ GPIO.setup(LED, GPIO.OUT)
 SONAR_TRIGGER = 31 #GB6
 SONAR_ECHO = 29 #GB5
 GPIO.setup(SONAR_TRIGGER, GPIO.OUT)
-GPIO.setup(SONAR_ECHO, GPIO.IN)
+GPIO.setup(SONAR_ECHO, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 SIZE=80*50
 OUTPUT=2
@@ -67,6 +67,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
     distance = 0
 
     def do_GET(self):
+        print self.path
         if self.path == "/":
           self.send_response(200)
           self.send_header('Content-type', 'text/html')
