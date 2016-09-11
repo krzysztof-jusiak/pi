@@ -194,12 +194,12 @@ class HTTPHandler(BaseHTTPRequestHandler):
             time.sleep(0.00001)
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
 
-            timeout = time.time() + 1.0
+            timeout = time.time() + 0.5
             while GPIO.input(SONAR_ECHO) == GPIO.LOW and time.time() < timeout: pass
             pulse_start = time.time()
 
-            timeout = time.time() + 1.0
-              while GPIO.input(SONAR_ECHO) == GPIO.HIGH and time.time() < timeout: pass
+            timeout = time.time() + 0.5
+            while GPIO.input(SONAR_ECHO) == GPIO.HIGH and time.time() < timeout: pass
             pulse_end = time.time()
 
             pulse_duration = pulse_end - pulse_start
