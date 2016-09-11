@@ -194,22 +194,21 @@ class HTTPHandler(BaseHTTPRequestHandler):
             time.sleep(0.00001)
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
 
-            timeout = time.time() + 0.5
-            while GPIO.input(SONAR_ECHO) == GPIO.LOW or time.time() > timeout:
-              pulse_start = time.time()
+            timeout = time.time() + 1.0
+            while GPIO.input(SONAR_ECHO) == GPIO.LOW and time.time() < timeout: pass
+            pulse_start = time.time()
 
-            timeout = time.time() + 0.5
-            while GPIO.input(SONAR_ECHO) == GPIO.HIGH or time.time() > timeout:
-              pulse_end = time.time()
+            timeout = time.time() + 1.0
+            while GPIO.input(SONAR_ECHO) == GPIO.HIGH and time.time() < timeout: pass
+            pulse_end = time.time()
 
             pulse_duration = pulse_end - pulse_start
             HTTPHandler.measure = pulse_duration * 17150
             HTTPHandler.measure = round(HTTPHandler.measure, 2)
 
             if HTTPHandler.measure < 2 or HTTPHandler.measure > 400:
+              HTTPHandler.distance = HTTPHandler.measure
               HTTPHandler.measure = 0
-
-            HTTPHandler.distance = HTTPHandler.measure
 
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
@@ -222,6 +221,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(str(HTTPHandler.measure))
             self.wfile.close()
             HTTPHandler.measure = -1
+            time.sleep(0.5)
 
         elif self.path.startswith("/forward"):
           HTTPHandler.left = max(0, int(self.path.split(':')[1]))
