@@ -151,17 +151,17 @@ class HTTPHandler(BaseHTTPRequestHandler):
               HTTPHandler.left = 0
               HTTPHandler.right = 0
 
-              print "auto: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
+            print "auto: " + str(HTTPHandler.left) + ":" + str(HTTPHandler.right)
 
-              #engine left
-              GPIO.output(Motor1A, GPIO.LOW)
-              GPIO.output(Motor1B, GPIO.HIGH)
-              e1.ChangeDutyCycle(HTTPHandler.left)
+            #engine left
+            GPIO.output(Motor1A, GPIO.LOW)
+            GPIO.output(Motor1B, GPIO.HIGH)
+            e1.ChangeDutyCycle(HTTPHandler.left)
 
-              #engine right
-              GPIO.output(Motor2A, GPIO.LOW)
-              GPIO.output(Motor2B, GPIO.HIGH)
-              e2.ChangeDutyCycle(HTTPHandler.right)
+            #engine right
+            GPIO.output(Motor2A, GPIO.LOW)
+            GPIO.output(Motor2B, GPIO.HIGH)
+            e2.ChangeDutyCycle(HTTPHandler.right)
 
             steps_image = np.zeros((360, 640), np.uint8)
             steps_image.fill(255)
@@ -206,9 +206,9 @@ class HTTPHandler(BaseHTTPRequestHandler):
             HTTPHandler.measure = pulse_duration * 17150
             HTTPHandler.measure = round(HTTPHandler.measure, 2)
 
-            if HTTPHandler.measure < 2 or HTTPHandler.measure > 400:
+            if HTTPHandler.measure >= 2.0 and HTTPHandler.measure <= 400.0:
               HTTPHandler.distance = HTTPHandler.measure
-              HTTPHandler.measure = 0
+            HTTPHandler.measure = 0
 
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
