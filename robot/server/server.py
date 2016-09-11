@@ -143,8 +143,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
             active = network.activateOnDataset(dataset)[0]
 
             if HTTPHandler.distance >= 10: #cm
-              HTTPHandler.left = 85 if active[1] > 0.8 else 0 if active[1] < 0.3 else 50
-              HTTPHandler.right = 85 if active[0] > 0.8 else 0 if active[0] < 0.3 else 50
+              HTTPHandler.left = 85 if active[1] > 0.9 else 0
+              HTTPHandler.right = 85 if active[0] > 0.9 else 0
             else:
               HTTPHandler.left = 0
               HTTPHandler.right = 0
