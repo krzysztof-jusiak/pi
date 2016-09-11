@@ -142,7 +142,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             dataset.addSample(array)
             active = network.activateOnDataset(dataset)[0]
 
-            if HTTPHandler.distance >= 20: #cm
+            if HTTPHandler.distance >= 10: #cm
               HTTPHandler.left = 85 if active[1] > 0.9 else 50
               HTTPHandler.right = 85 if active[0] > 0.9 else 50
 #            HTTPHandler.left = min(100, max(0, int(active[0])))
@@ -199,7 +199,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             pulse_start = time.time()
 
             timeout = time.time() + 1.0
-            while GPIO.input(SONAR_ECHO) == GPIO.HIGH and time.time() < timeout: pass
+              while GPIO.input(SONAR_ECHO) == GPIO.HIGH and time.time() < timeout: pass
             pulse_end = time.time()
 
             pulse_duration = pulse_end - pulse_start
