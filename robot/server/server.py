@@ -195,11 +195,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
             GPIO.output(SONAR_TRIGGER, GPIO.LOW)
 
             timeout = time.time() + 0.5
-            while GPIO.input(SONAR_ECHO) == GPIO.LOW || time.time() > timeout:
+            while GPIO.input(SONAR_ECHO) == GPIO.LOW or time.time() > timeout:
               pulse_start = time.time()
 
             timeout = time.time() + 0.5
-            while GPIO.input(SONAR_ECHO) == GPIO.HIGH || time.time() > timeout:
+            while GPIO.input(SONAR_ECHO) == GPIO.HIGH or time.time() > timeout:
               pulse_end = time.time()
 
             pulse_duration = pulse_end - pulse_start
