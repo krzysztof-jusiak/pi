@@ -53,6 +53,7 @@ OUTPUT=2
 def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size = 7, sample_wait = 0.1, temperature = 20):
   speed_of_sound = 331.3 * math.sqrt(1+(temperature / 273.15))
   sample = []
+  GPIO.setmode(GPIO.BOARD)
   GPIO.setup(trig_pin, GPIO.OUT)
   GPIO.setup(echo_pin, GPIO.IN)
   for distance_reading in range(sample_size):
