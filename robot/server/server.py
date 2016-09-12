@@ -13,7 +13,6 @@ from random import shuffle
 import numpy as np
 import pickle
 import math
-import Queue
 
 GPIO.setwarnings(False)
 
@@ -73,20 +72,6 @@ def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size 
     sample.append(distance_cm)
   sorted_sample = sorted(sample)
   return sorted_sample[sample_size // 2]
-
-def worker():
-  cap = cv2.VideoCapture(0)
-  cap.set(3, 640)
-  cap.set(4, 360)
-
-  while cap.isOpened() and HTTPHandler.camera:
-    ret, frame = cap.read()
-    assert ret
-    result, buf = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-    assert result
-    q.put(buf)
-
-  cap.release()
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
   pass
@@ -279,19 +264,22 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
           self.end_headers()
 
-          t = threading.Thread(target=worker)
-          t.start()
+          cap = cv2.VideoCapture(0)
+          cap.set(3, 640)
+          cap.set(4, 360)
 
-          while HTTPHandler.camera:
-            buf = q.get()
+          while cap.isOpened() and HTTPHandler.camera:
+            ret, frame = cap.read()
+            assert ret
+            result, buf = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 60])
+            assert result
             self.wfile.write("--jpgboundary")
             self.send_header('Content-type','image/jpeg')
             self.send_header('Content-length', str(len(buf)))
             self.end_headers()
             self.wfile.write(bytearray(buf))
             self.wfile.write('\r\n')
-
-          t.join()
+          cap.release()
 
         elif self.path.startswith("/camera:off"):
           HTTPHandler.camera = False
@@ -301,8 +289,6 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
 server_address = ('', 80)
 httpd = ThreadedHTTPServer(server_address, HTTPHandler)
-
-q = Queue.Queue()
 
 try:
     GPIO.output(LED, GPIO.HIGH)
