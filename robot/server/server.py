@@ -13,6 +13,7 @@ from random import shuffle
 import numpy as np
 import pickle
 import math
+import Queue
 
 GPIO.setwarnings(False)
 
@@ -81,12 +82,27 @@ class HTTPHandler(BaseHTTPRequestHandler):
     led = False
     train = False
     auto = False
+    camera = False
     debug = False
     debug_step = False
     left = 0
     right = 0
     can_measure = True
     distance = 0
+
+    def worker():
+      cap = cv2.VideoCapture(0)
+      cap.set(3, 640)
+      cap.set(4, 360)
+
+      while cap.isOpened() and HTTPHandler.camera:
+        ret, frame = cap.read()
+        assert ret
+        result, buf = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+        assert result
+        q.put(buf)
+
+      cap.release()
 
     def do_GET(self):
         print self.path
@@ -256,20 +272,37 @@ class HTTPHandler(BaseHTTPRequestHandler):
           GPIO.output(Motor2B, GPIO.LOW)
           e2.ChangeDutyCycle(HTTPHandler.right)
 
-        elif self.path.startswith("/camera"):
+        elif self.path.startswith("/camera:on"):
           status = self.path.split(':')[1]
-          print "camera: " + status
+          HTTPHandler.camera = True
+          self.send_response(200)
+          self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
+          self.end_headers()
 
-          if status == "on":
-            call("mjpg_streamer -i 'input_uvc.so -n -f " + str(HTTPHandler.frames) + " -r 640x360' -o 'output_http.so -p 10088 -w /usr/local/www' &", shell=True)
-          else:
-            call("pkill -9 mjpg_streamer", shell=True)
+          t = threading.Thread(target=worker)
+          t.start()
+
+          while HTTPHandler.camera:
+            buf = q.get()
+            self.wfile.write("--jpgboundary")
+            self.send_header('Content-type','image/jpeg')
+            self.send_header('Content-length', str(len(buf)))
+            self.end_headers()
+            self.wfile.write(bytearray(buf))
+            self.wfile.write('\r\n')
+
+          t.join()
+
+        elif self.path.startswith("/camera:off"):
+          HTTPHandler.camera = False
 
         elif self.path.startswith("/off"):
           call("halt", shell=True)
 
 server_address = ('', 80)
 httpd = ThreadedHTTPServer(server_address, HTTPHandler)
+
+q = Queue.Queue()
 
 try:
     GPIO.output(LED, GPIO.HIGH)
