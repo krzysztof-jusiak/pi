@@ -85,7 +85,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
     debug_step = False
     left = 0
     right = 0
-    measure = -1
+    can_measure = True
     distance = 0
 
     def do_GET(self):
@@ -208,14 +208,9 @@ class HTTPHandler(BaseHTTPRequestHandler):
           HTTPHandler.auto = False
 
         elif self.path.startswith("/ping"):
-          if HTTPHandler.measure == -1:
-            HTTPHandler.measure = 0
-            HTTPHandler.measure = sonar_distance()
-
-            print HTTPHandler.measure
-            if HTTPHandler.measure >= 2.0 and HTTPHandler.measure <= 400.0:
-              HTTPHandler.distance = HTTPHandler.measure
-            HTTPHandler.measure = 0
+          if HTTPHandler.can_measure:
+            HTTPHandler.can_measure = False
+            HTTPHandler.distance = sonar_distance()
 
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
             HTTPHandler.led ^= True
@@ -224,9 +219,9 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(str(HTTPHandler.measure))
+            self.wfile.write(str(HTTPHandler.distance))
             self.wfile.close()
-            HTTPHandler.measure = -1
+            HTTPHandler.measure = True
 
         elif self.path.startswith("/forward"):
           HTTPHandler.left = max(0, int(self.path.split(':')[1]))
