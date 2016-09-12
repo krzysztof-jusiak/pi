@@ -300,5 +300,4 @@ except:
     GPIO.output(Motor1E, GPIO.LOW)
     GPIO.output(Motor2E, GPIO.LOW)
     GPIO.cleanup()
-    call("pkill -9 mjpg_streamer", shell=True)
 
