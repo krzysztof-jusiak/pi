@@ -272,7 +272,6 @@ server_address = ('', 80)
 httpd = ThreadedHTTPServer(server_address, HTTPHandler)
 
 try:
-    GPIO.output(SONAR_TRIGGER, GPIO.LOW)
     GPIO.output(LED, GPIO.HIGH)
     httpd.serve_forever()
 except:
