@@ -100,7 +100,6 @@
     const turn_step = 1;
     const max_turn_offset = 4;
     const update_interval = 10;
-    const default_camera_address = "http://192.168.1.71:10088";
     const TO_RADIANS = Math.PI / 180;
     const Mode = { Joystick:0, Wheel:1 };
 
@@ -125,8 +124,8 @@
     var first_inter = null;
     var connecting = false;
     var connected = false;
-    var url = default_camera_address.substr(0, default_camera_address.lastIndexOf(':'));
-    var port = default_camera_address.substr(default_camera_address.lastIndexOf(':') + 1);
+    var url = "http://192.168.1.71"
+    var port = 80
     var mode = Mode.Joystick;
 
     init();
@@ -213,7 +212,7 @@
       if (elem.style.opacity == 1.0) {
         document.getElementById('stream').style.display = 'block';
         document.getElementById('auto').style.opacity = 0.5;
-        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + port + "/?action=stream"; }, 1000);
+        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + port + "/camera:on"; }, 1000);
         localStorage.setItem('camera_is_on', '');
         request(url + "/auto:off", true);
         request(url + "/camera:on", true);
@@ -376,7 +375,7 @@
       if (once) {
         var camera_address = localStorage.getItem('camera_address');
         if (camera_address == null) {
-          camera_address = default_camera_address;
+          camera_address = url + ":" + port;
         }
 
         url = camera_address.substr(0, camera_address.lastIndexOf(':'));
@@ -428,7 +427,7 @@
 
         if (localStorage.getItem('camera_is_on') != null) {
           document.getElementById('stream').style.display = 'block';
-          document.getElementById('stream').src = url + ":" + port + "/?action=stream";
+          document.getElementById('stream').src = url + ":" + port + "/camera:on";
           document.getElementById('camera').style.opacity = 1.0;
         } else {
           document.getElementById('camera').style.opacity = 0.5;
