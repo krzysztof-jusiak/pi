@@ -12,6 +12,7 @@ from pybrain.supervised import BackpropTrainer
 from random import shuffle
 import numpy as np
 import pickle
+import math
 
 GPIO.setwarnings(False)
 
