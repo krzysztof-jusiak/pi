@@ -46,8 +46,6 @@ GPIO.setup(LED, GPIO.OUT)
 
 SONAR_TRIGGER = 31 #GB6
 SONAR_ECHO = 29 #GB5
-GPIO.setup(SONAR_TRIGGER, GPIO.OUT)
-GPIO.setup(SONAR_ECHO, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 SIZE=80*50
 OUTPUT=2
@@ -55,6 +53,8 @@ OUTPUT=2
 def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size = 7, sample_wait = 0.1, temperature = 20):
   speed_of_sound = 331.3 * math.sqrt(1+(temperature / 273.15))
   sample = []
+  GPIO.setup(trig_pin, GPIO.OUT)
+  GPIO.setup(echo_pin, GPIO.IN)
   for distance_reading in range(sample_size):
       GPIO.output(trig_pin, GPIO.LOW)
       time.sleep(sample_wait)
