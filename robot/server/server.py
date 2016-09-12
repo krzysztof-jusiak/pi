@@ -210,7 +210,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/ping"):
           if HTTPHandler.can_measure:
             HTTPHandler.can_measure = False
-            HTTPHandler.distance = sonar_distance()
+
+            distance = sonar_distance()
+            if distance >= 2.0 and distance <= 400.0:
+              HTTPHandler.distance = int(distance))))
 
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
             HTTPHandler.led ^= True
