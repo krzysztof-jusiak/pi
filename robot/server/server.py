@@ -57,20 +57,20 @@ def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size 
   GPIO.setup(trig_pin, GPIO.OUT)
   GPIO.setup(echo_pin, GPIO.IN)
   for distance_reading in range(sample_size):
-      GPIO.output(trig_pin, GPIO.LOW)
-      time.sleep(sample_wait)
-      GPIO.output(trig_pin, True)
-      time.sleep(0.00001)
-      GPIO.output(trig_pin, False)
-      timeout = time.time() + 0.5
-      while GPIO.input(echo_pin) == GPIO.LOW and time.time() < timeout: pass
-        sonar_signal_off = time.time()
-      timeout = time.time() + 0.5
-      while GPIO.input(echo_pin) == GPIO.HIGH and time.time() < timeout: pass
-        sonar_signal_on = time.time()
-      time_passed = sonar_signal_on - sonar_signal_off
-      distance_cm = time_passed * ((speed_of_sound * 100) / 2)
-      sample.append(distance_cm)
+    GPIO.output(trig_pin, GPIO.LOW)
+    time.sleep(sample_wait)
+    GPIO.output(trig_pin, True)
+    time.sleep(0.00001)
+    GPIO.output(trig_pin, False)
+    timeout = time.time() + 0.5
+    while GPIO.input(echo_pin) == GPIO.LOW and time.time() < timeout: pass
+      sonar_signal_off = time.time()
+    timeout = time.time() + 0.5
+    while GPIO.input(echo_pin) == GPIO.HIGH and time.time() < timeout: pass
+      sonar_signal_on = time.time()
+    time_passed = sonar_signal_on - sonar_signal_off
+    distance_cm = time_passed * ((speed_of_sound * 100) / 2)
+    sample.append(distance_cm)
   sorted_sample = sorted(sample)
   GPIO.cleanup((trig_pin, echo_pin))
   return sorted_sample[sample_size // 2]
