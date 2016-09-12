@@ -46,6 +46,8 @@ GPIO.setup(LED, GPIO.OUT)
 
 SONAR_TRIGGER = 31 #GB6
 SONAR_ECHO = 29 #GB5
+GPIO.setup(trig_pin, GPIO.OUT)
+GPIO.setup(echo_pin, GPIO.IN)
 
 SIZE=80*50
 OUTPUT=2
@@ -53,15 +55,12 @@ OUTPUT=2
 def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size = 7, sample_wait = 0.1, temperature = 20):
   speed_of_sound = 331.3 * math.sqrt(1+(temperature / 273.15))
   sample = []
-  GPIO.setmode(GPIO.BOARD)
-  GPIO.setup(trig_pin, GPIO.OUT)
-  GPIO.setup(echo_pin, GPIO.IN)
   for distance_reading in range(sample_size):
     GPIO.output(trig_pin, GPIO.LOW)
     time.sleep(sample_wait)
-    GPIO.output(trig_pin, True)
+    GPIO.output(trig_pin, GPIO.HIGH)
     time.sleep(0.00001)
-    GPIO.output(trig_pin, False)
+    GPIO.output(trig_pin, GPIO.LOW)
     timeout = time.time() + 0.5
     while GPIO.input(echo_pin) == GPIO.LOW and time.time() < timeout: pass
     sonar_signal_off = time.time()
@@ -72,7 +71,6 @@ def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size 
     distance_cm = time_passed * ((speed_of_sound * 100) / 2)
     sample.append(distance_cm)
   sorted_sample = sorted(sample)
-  GPIO.cleanup((trig_pin, echo_pin))
   return sorted_sample[sample_size // 2]
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
