@@ -71,7 +71,6 @@ def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size 
       sample.append(distance_cm)
   sorted_sample = sorted(sample)
   GPIO.cleanup((trig_pin, echo_pin))
-  print sorted_sample
   return sorted_sample[sample_size // 2]
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -213,6 +212,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             HTTPHandler.measure = 0
             HTTPHandler.measure = sonar_distance()
 
+            print HTTPHandler.measure
             if HTTPHandler.measure >= 2.0 and HTTPHandler.measure <= 400.0:
               HTTPHandler.distance = HTTPHandler.measure
             HTTPHandler.measure = 0
