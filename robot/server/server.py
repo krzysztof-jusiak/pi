@@ -213,7 +213,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
             distance = sonar_distance()
             if distance >= 2.0 and distance <= 400.0:
-              HTTPHandler.distance = int(distance))))
+              HTTPHandler.distance = int(distance)
 
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
             HTTPHandler.led ^= True
