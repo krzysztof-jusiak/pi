@@ -221,7 +221,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(str(HTTPHandler.distance))
             self.wfile.close()
-            HTTPHandler.measure = True
+            HTTPHandler.can_measure = True
 
         elif self.path.startswith("/forward"):
           HTTPHandler.left = max(0, int(self.path.split(':')[1]))
