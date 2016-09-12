@@ -279,7 +279,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
           self.end_headers()
 
-          t = threading.Thread(target=worker)
+          t = threading.Thread(target=self.worker)
           t.start()
 
           while HTTPHandler.camera:
