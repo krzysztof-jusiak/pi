@@ -51,6 +51,26 @@ GPIO.setup(SONAR_ECHO, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 SIZE=80*50
 OUTPUT=2
 
+def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size = 7, sample_wait = 0.1, temperature = 20):
+  speed_of_sound = 331.3 * math.sqrt(1+(temperature / 273.15))
+  sample = []
+  for distance_reading in range(sample_size):
+      GPIO.output(trig_pin, GPIO.LOW)
+      time.sleep(sample_wait)
+      GPIO.output(trig_pin, True)
+      time.sleep(0.00001)
+      GPIO.output(trig_pin, False)
+      while GPIO.input(echo_pin) == 0:
+          sonar_signal_off = time.time()
+      while GPIO.input(echo_pin) == 1:
+          sonar_signal_on = time.time()
+      time_passed = sonar_signal_on - sonar_signal_off
+      distance_cm = time_passed * ((speed_of_sound * 100) / 2)
+      sample.append(distance_cm)
+  sorted_sample = sorted(sample)
+  GPIO.cleanup((trig_pin, echo_pin))
+  return sorted_sample[sample_size // 2]
+
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
   pass
 
@@ -188,27 +208,12 @@ class HTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/ping"):
           if HTTPHandler.measure == -1:
             HTTPHandler.measure = 0
-            GPIO.output(SONAR_TRIGGER, GPIO.HIGH)
-            time.sleep(0.00001)
-            GPIO.output(SONAR_TRIGGER, GPIO.LOW)
-
-            timeout = time.time() + 0.5
-            while GPIO.input(SONAR_ECHO) == GPIO.LOW and time.time() < timeout: pass
-            pulse_start = time.time()
-
-            timeout = time.time() + 0.5
-            while GPIO.input(SONAR_ECHO) == GPIO.HIGH and time.time() < timeout: pass
-            pulse_end = time.time()
-
-            pulse_duration = pulse_end - pulse_start
-            HTTPHandler.measure = pulse_duration * 17150
-            HTTPHandler.measure = round(HTTPHandler.measure, 2)
+            HTTPHandler.measure = sonar_distance()
 
             if HTTPHandler.measure >= 2.0 and HTTPHandler.measure <= 400.0:
               HTTPHandler.distance = HTTPHandler.measure
             HTTPHandler.measure = 0
 
-            GPIO.output(SONAR_TRIGGER, GPIO.LOW)
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
             HTTPHandler.led ^= True
 
@@ -219,7 +224,6 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(str(HTTPHandler.measure))
             self.wfile.close()
             HTTPHandler.measure = -1
-            time.sleep(0.5)
 
         elif self.path.startswith("/forward"):
           HTTPHandler.left = max(0, int(self.path.split(':')[1]))
