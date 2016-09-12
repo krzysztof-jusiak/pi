@@ -74,6 +74,20 @@ def sonar_distance(trig_pin = SONAR_TRIGGER, echo_pin = SONAR_ECHO, sample_size 
   sorted_sample = sorted(sample)
   return sorted_sample[sample_size // 2]
 
+def worker():
+  cap = cv2.VideoCapture(0)
+  cap.set(3, 640)
+  cap.set(4, 360)
+
+  while cap.isOpened() and HTTPHandler.camera:
+    ret, frame = cap.read()
+    assert ret
+    result, buf = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+    assert result
+    q.put(buf)
+
+  cap.release()
+
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
   pass
 
@@ -89,20 +103,6 @@ class HTTPHandler(BaseHTTPRequestHandler):
     right = 0
     can_measure = True
     distance = 0
-
-    def worker():
-      cap = cv2.VideoCapture(0)
-      cap.set(3, 640)
-      cap.set(4, 360)
-
-      while cap.isOpened() and HTTPHandler.camera:
-        ret, frame = cap.read()
-        assert ret
-        result, buf = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-        assert result
-        q.put(buf)
-
-      cap.release()
 
     def do_GET(self):
         print self.path
@@ -279,7 +279,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.send_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
           self.end_headers()
 
-          t = threading.Thread(target=self.worker)
+          t = threading.Thread(target=worker)
           t.start()
 
           while HTTPHandler.camera:
