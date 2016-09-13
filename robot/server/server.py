@@ -234,7 +234,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(str(qual.quality) + ", " + str(qual.signallevel) + ", " + str(qual.noiselevel) + " " + HTTPHandler.distance))
+            self.wfile.write(', '.join(str(x) for x in [qual.quality, qual.signallevel, qual.noiselevel, HTTPHandler.distance]))
             self.wfile.close()
             HTTPHandler.can_measure = True
 
