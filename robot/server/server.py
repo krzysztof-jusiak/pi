@@ -109,10 +109,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
           print "training..."
           cap = cv2.VideoCapture(0)
           count = 0
-          cap.set(3, 80)
-          cap.set(4, 50)
+          cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 80)
+          cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 50)
+          cap.set(cv2.cv.CV_CAP_PROP_FPS, 15)
           time.sleep(1.0)
-          cap.set(15, -8.0) #exposure
+          cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -8.0)
           HTTPHandler.train = True
           while cap.isOpened() and HTTPHandler.train:
             time.sleep(0.1)
@@ -147,11 +148,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
           error = 0.02;
           fileObject.close()
           print "..."
-          cap = cv2.VideoCapture(0)
-          cap.set(3, 80)
-          cap.set(4, 50)
+          cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 80)
+          cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 50)
+          cap.set(cv2.cv.CV_CAP_PROP_FPS, 15)
           time.sleep(1.0)
-          cap.set(15, -8.0) #exposure
+          cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -8.0)
           HTTPHandler.auto = True
           while cap.isOpened() and HTTPHandler.auto:
             while HTTPHandler.debug and not HTTPHandler.debug_step:
@@ -269,8 +270,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
           self.end_headers()
 
           cap = cv2.VideoCapture(0)
-          cap.set(3, 640)
-          cap.set(4, 360)
+          cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 640)
+          cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 360)
+          cap.set(cv2.cv.CV_CAP_PROP_FPS, 30)
+          time.sleep(1.0)
+          cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -8.0)
 
           while cap.isOpened() and HTTPHandler.camera:
             ret, frame = cap.read()
