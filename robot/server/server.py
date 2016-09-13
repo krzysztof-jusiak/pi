@@ -9,6 +9,7 @@ from pybrain.datasets import SupervisedDataSet
 from pybrain.datasets import UnsupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised import BackpropTrainer
+from pythonwifi.iwlibs import Wireless
 from random import shuffle
 import numpy as np
 import pickle
@@ -107,13 +108,14 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
         elif self.path.startswith("/train:on"):
           print "training..."
-          cap = cv2.VideoCapture(0)
           count = 0
+
+          cap = cv2.VideoCapture(0)
           cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 80)
           cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 50)
           cap.set(cv2.cv.CV_CAP_PROP_FPS, 15)
           time.sleep(1.0)
-          cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -8.0)
+
           HTTPHandler.train = True
           while cap.isOpened() and HTTPHandler.train:
             time.sleep(0.1)
@@ -148,11 +150,13 @@ class HTTPHandler(BaseHTTPRequestHandler):
           error = 0.02;
           fileObject.close()
           print "..."
+
+          cap = cv2.VideoCapture(0)
           cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 80)
           cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 50)
           cap.set(cv2.cv.CV_CAP_PROP_FPS, 15)
           time.sleep(1.0)
-          cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -8.0)
+
           HTTPHandler.auto = True
           while cap.isOpened() and HTTPHandler.auto:
             while HTTPHandler.debug and not HTTPHandler.debug_step:
@@ -224,11 +228,13 @@ class HTTPHandler(BaseHTTPRequestHandler):
             GPIO.output(LED, GPIO.HIGH if HTTPHandler.led else GPIO.LOW)
             HTTPHandler.led ^= True
 
+            _, qual, _, _ = wifi.getStatistics()
+
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(str(HTTPHandler.distance))
+            self.wfile.write(str(qual.quality, qual.signallevel, qual.noiselevel, HTTPHandler.distance))
             self.wfile.close()
             HTTPHandler.can_measure = True
 
@@ -274,7 +280,6 @@ class HTTPHandler(BaseHTTPRequestHandler):
           cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 360)
           cap.set(cv2.cv.CV_CAP_PROP_FPS, 30)
           time.sleep(1.0)
-          cap.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -8.0)
 
           while cap.isOpened() and HTTPHandler.camera:
             ret, frame = cap.read()
@@ -295,6 +300,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
         elif self.path.startswith("/off"):
           call("halt", shell=True)
 
+wifi = Wireless('wlan0')
 server_address = ('', 80)
 httpd = ThreadedHTTPServer(server_address, HTTPHandler)
 
