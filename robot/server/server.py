@@ -111,9 +111,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
           count = 0
           cap.set(3, 80)
           cap.set(4, 50)
+          time.sleep(1.0)
+          cap.set(15, -8.0) #exposure
           HTTPHandler.train = True
           while cap.isOpened() and HTTPHandler.train:
-            time.sleep(0.2)
+            time.sleep(0.1)
             if HTTPHandler.left > 40 and HTTPHandler.right > 40:
               ret, frame = cap.read()
               gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -148,6 +150,8 @@ class HTTPHandler(BaseHTTPRequestHandler):
           cap = cv2.VideoCapture(0)
           cap.set(3, 80)
           cap.set(4, 50)
+          time.sleep(1.0)
+          cap.set(15, -8.0) #exposure
           HTTPHandler.auto = True
           while cap.isOpened() and HTTPHandler.auto:
             while HTTPHandler.debug and not HTTPHandler.debug_step:
@@ -186,10 +190,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
             steps_image = np.zeros((360, 640), np.uint8)
             steps_image.fill(255)
-            steps_image[50+50:50+50+50,       50+25+25:80+25+25+50] = gray
-            steps_image[50+50+25:50+25+50+25, 50+25+85+25:25+80+80+5+25+50] = crop
-            steps_image[50+50+25:50+25+50+25, 50+25+25+160+5+5:80+80+80+5+5+25+25+50] = inverted
-            steps_image[50+50+25:50+25+50+25, 50+25+25+240+5+5+5:80+80+80+80+5+5+5+25+25+50] = bw
+            steps_image[25+50:50+50+25,    50+25+25:80+25+25+50] = gray
+            steps_image[25+50+25:50+25+50, 50+25+85+25:25+80+80+5+25+50] = crop
+            steps_image[25+50+25:50+25+50, 50+25+25+160+5+5:80+80+80+5+5+25+25+50] = inverted
+            steps_image[25+50+25:50+25+50, 50+25+25+240+5+5+5:80+80+80+80+5+5+5+25+25+50] = bw
             cv2.putText(steps_image, "net: '" + file + "', error: " + str(error), (100, 75), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
             cv2.putText(steps_image, "activate: " + str(active), (100, 200), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)
             cv2.putText(steps_image, "obstacle: " + str(HTTPHandler.distance) + " cm", (100, 225), cv2.FONT_HERSHEY_PLAIN, 1.0, 0, 1)

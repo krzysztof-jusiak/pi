@@ -120,7 +120,6 @@
     var steering_wheel_image = new Image();
     var once = true;
     var abort = false;
-    var cameraTimeout = 0;
     var first_inter = null;
     var connecting = false;
     var connected = false;
@@ -192,9 +191,6 @@
       elem.style.opacity = elem.style.opacity == 1.0 ? 0.5 : 1.0;
 
       if (elem.style.opacity == 1.0) {
-        document.getElementById('camera').style.opacity = 0.5;
-        document.getElementById('stream').src = "dupa";//url + "/auto:on";
-        clearTimeout(cameraTimeout);
         localStorage.setItem('auto_is_on', '');
         request(url + "/camera:off", true);
         request(url + "/auto:on", true);
@@ -211,14 +207,14 @@
 
       if (elem.style.opacity == 1.0) {
         document.getElementById('stream').style.display = 'block';
-        document.getElementById('auto').style.opacity = 0.5;
-        cameraTimeout = setTimeout(function() { document.getElementById('stream').src = url + ":" + port + "/camera:on"; }, 1000);
+        if (localStorage.getItem('auto_is_on') != null) {
+          document.getElementById('stream').src = url + ":" + port + "/auto:on";
+        } else {
+          document.getElementById('stream').src = url + ":" + port + "/camera:on";
+          request(url + "/camera:on", true);
+        }
         localStorage.setItem('camera_is_on', '');
-        request(url + "/auto:off", true);
-        request(url + "/camera:on", true);
-        localStorage.removeItem('auto_is_on');
       } else {
-        clearTimeout(cameraTimeout);
         document.getElementById('stream').style.display = 'none';
         document.getElementById('stream').src = "";
         localStorage.removeItem('camera_is_on');
@@ -427,7 +423,13 @@
 
         if (localStorage.getItem('camera_is_on') != null) {
           document.getElementById('stream').style.display = 'block';
-          document.getElementById('stream').src = url + ":" + port + "/camera:on";
+
+          if (localStorage.getItem('auto_is_on') != null) {
+            document.getElementById('stream').src = url + ":" + port + "/auto:on";
+          } else {
+            document.getElementById('stream').src = url + ":" + port + "/camera:on";
+          }
+
           document.getElementById('camera').style.opacity = 1.0;
         } else {
           document.getElementById('camera').style.opacity = 0.5;
@@ -435,8 +437,6 @@
         }
 
         if (localStorage.getItem('auto_is_on') != null) {
-          document.getElementById('stream').style.display = 'block';
-          document.getElementById('stream').src = url + "/auto:on";
           document.getElementById('auto').style.opacity = 1.0;
         } else {
           document.getElementById('auto').style.opacity = 0.5;
