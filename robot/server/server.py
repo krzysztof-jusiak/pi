@@ -132,7 +132,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
         elif self.path.startswith("/debug:on"):
           HTTPHandler.debug = True
-          
+
         elif self.path.startswith("/debug:off"):
           HTTPHandler.debug = False
 
@@ -162,7 +162,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
             while HTTPHandler.debug and not HTTPHandler.debug_step:
               time.sleep(0.1)
             HTTPHandler.debug_step = False
-        
+
             ret, frame = cap.read()
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 

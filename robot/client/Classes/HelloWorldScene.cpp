@@ -36,7 +36,7 @@ bool HelloWorld::init()
     webView->setAnchorPoint(Point(0.f, 0.0f)); // top left
     webView->setContentSize(Size(visibleSize.width, visibleSize.height));
     webView->setPosition(Vec2(0.f, 25.f));
-    webView->loadFile("index.html");
+    webView->loadURL("http://192.168.1.71");
     webView->setScalesPageToFit(true);
     this->addChild(webView, 1);
     return true;
