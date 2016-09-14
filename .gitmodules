@@ -1,3 +1,0 @@
-[submodule "robot/server/mjpg-streamer"]
-	path = robot/server/mjpg-streamer
-	url = https://github.com/SaintGimp/mjpg-streamer
