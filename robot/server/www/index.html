@@ -358,7 +358,7 @@
     function call_command(value) {
       if (value == "debug:on") {
         document.getElementById("stream").addEventListener('click', iframeclick());
-      } else if (value = "debug:off") {
+      } else if (value == "debug:off") {
         document.getElementById("stream").removeEventListener('click');
       }
       request(url + "/" + value, true);
